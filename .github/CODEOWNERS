@@ -1,0 +1,25 @@
+# CODEOWNERS
+# Require review from the security reviewer for all critical paths.
+# Branch protection must have "Require review from Code Owners" enabled.
+# See .github/GITHUB_SETUP.md for setup instructions.
+
+# CI/CD pipeline and project configuration
+.github/                                          @b-mackenzie-alexander
+CLAUDE.md                                         @b-mackenzie-alexander
+AGENTS.md                                         @b-mackenzie-alexander
+
+# Database schema and migrations — irreversible changes live here
+packages/prisma/                                  @b-mackenzie-alexander
+
+# Scheduled job definitions and handlers — bugs here send emails at scale
+packages/lib/jobs/                                @b-mackenzie-alexander
+
+# Server-side business logic and permission checks
+packages/lib/server-only/                         @b-mackenzie-alexander
+
+# Type definitions that are read by multiple packages
+packages/lib/types/document-audit-logs.ts         @b-mackenzie-alexander
+packages/lib/types/document-email.ts              @b-mackenzie-alexander
+
+# Email templates — visual output reviewed before integration
+packages/email/                                   @b-mackenzie-alexander

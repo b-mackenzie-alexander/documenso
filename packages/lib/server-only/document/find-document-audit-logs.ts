@@ -81,6 +81,9 @@ export const findDocumentAuditLogs = async ({
           equals: true,
         },
       },
+      {
+        type: DOCUMENT_AUDIT_LOG_TYPE.REMINDER_SENT,
+      },
     ];
   }
 

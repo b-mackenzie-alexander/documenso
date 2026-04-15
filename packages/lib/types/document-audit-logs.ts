@@ -49,6 +49,7 @@ export const ZDocumentAuditLogTypeSchema = z.enum([
   'DOCUMENT_EXTERNAL_ID_UPDATED', // When the document external ID is updated.
   'DOCUMENT_MOVED_TO_TEAM', // When the document is moved to a team.
   'DOCUMENT_DELEGATED_OWNER_CREATED', // When the document delegated owner is created.
+  'REMINDER_SENT', // When an automatic reminder email is sent to a recipient.
 
   // ACCESS AUTH 2FA events.
   'DOCUMENT_ACCESS_AUTH_2FA_REQUESTED', // When ACCESS AUTH 2FA is requested.
@@ -738,6 +739,18 @@ export const ZDocumentAuditLogEventRecipientExpiredSchema = z.object({
   }),
 });
 
+/**
+ * Event: Reminder sent to recipient.
+ */
+export const ZDocumentAuditLogEventReminderSentSchema = z.object({
+  type: z.literal(DOCUMENT_AUDIT_LOG_TYPE.REMINDER_SENT),
+  data: z.object({
+    recipientId: z.number(),
+    recipientEmail: z.string(),
+    recipientName: z.string(),
+  }),
+});
+
 export const ZDocumentAuditLogBaseSchema = z.object({
   id: z.string(),
   createdAt: z.date(),
@@ -786,6 +799,7 @@ export const ZDocumentAuditLogSchema = ZDocumentAuditLogBaseSchema.and(
     ZDocumentAuditLogEventRecipientUpdatedSchema,
     ZDocumentAuditLogEventRecipientRemovedSchema,
     ZDocumentAuditLogEventRecipientExpiredSchema,
+    ZDocumentAuditLogEventReminderSentSchema,
   ]),
 );
 

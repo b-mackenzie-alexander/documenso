@@ -1,0 +1,55 @@
+name: Push Guard
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  verify-push:
+    name: Direct Push Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if push came through a PR merge
+        run: |
+          COMMIT_MSG=$(cat <<'ENDMSG'
+          ${{ github.event.head_commit.message }}
+          ENDMSG
+          )
+
+          # PR merges produce "Merge pull request #NNN" or squash commits ending with "(#NNN)"
+          if echo "$COMMIT_MSG" | grep -qE '(^Merge pull request #|.*\(#[0-9]+\)$)'; then
+            echo "Push came from a PR merge — OK."
+            exit 0
+          fi
+
+          echo "::warning::Direct push to main detected (not from a PR merge)."
+          echo "::warning::Commit: ${{ github.sha }}"
+          echo "::warning::Author: ${{ github.actor }}"
+          echo "::warning::All changes to main should go through pull requests."
+          echo ""
+          echo "If this was intentional (initial setup, emergency fix), this warning can be ignored."
+          echo "If accidental, open a PR to revert and re-apply through the proper flow."
+
+  quality:
+    name: Post-Push Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/node-install
+
+      - name: Copy env
+        run: cp .env.example .env
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx eslint . --max-warnings 0
+
+      - name: Format check
+        run: npx prettier --check .
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high

@@ -436,6 +436,7 @@ model Envelope {
   documentMeta   DocumentMeta @relation(fields: [documentMetaId], references: [id])
 
   envelopeAttachments EnvelopeAttachment[]
+  reminderLogs        DocumentReminderLog[]
 
   @@index([type])
   @@index([status])
@@ -531,6 +532,9 @@ model DocumentMeta {
 
   envelopeExpirationPeriod Json? /// [EnvelopeExpirationPeriod] @zod.custom.use(ZEnvelopeExpirationPeriodSchema)
 
+  reminderEnabled      Boolean @default(false)
+  reminderIntervalDays Int?
+
   envelope Envelope?
 }
 
@@ -598,6 +602,7 @@ model Recipient {
   envelope             Envelope      @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
   fields               Field[]
   signatures           Signature[]
+  reminderLogs         DocumentReminderLog[]
 
   @@index([token])
   @@index([email])
@@ -1110,4 +1115,19 @@ model RateLimit {
 
   @@id([key, action, bucket])
   @@index([createdAt])
+}
+
+model DocumentReminderLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  envelopeId String
+  envelope   Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+
+  // null = sender digest entry; set = per-recipient reminder entry
+  recipientId Int?
+  recipient   Recipient? @relation(fields: [recipientId], references: [id], onDelete: SetNull)
+
+  @@index([envelopeId])
+  @@index([recipientId])
 }

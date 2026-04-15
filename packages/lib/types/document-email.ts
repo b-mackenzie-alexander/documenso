@@ -12,6 +12,7 @@ export enum DocumentEmailEvents {
   OwnerDocumentCompleted = 'ownerDocumentCompleted',
   OwnerRecipientExpired = 'ownerRecipientExpired',
   OwnerDocumentCreated = 'ownerDocumentCreated',
+  OwnerReminderDigest = 'ownerReminderDigest',
 }
 
 export const ZDocumentEmailSettingsSchema = z
@@ -66,6 +67,12 @@ export const ZDocumentEmailSettingsSchema = z
         'Whether to send an email to the document owner when a document is created from a direct template.',
       )
       .default(true),
+    ownerReminderDigest: z
+      .boolean()
+      .describe(
+        'Whether to send a digest email to the document owner when reminders are sent to unsigned recipients. Aggregates all pending documents for the team into a single email.',
+      )
+      .default(true),
   })
   .strip()
   .catch(() => ({ ...DEFAULT_DOCUMENT_EMAIL_SETTINGS }));
@@ -107,4 +114,5 @@ export const DEFAULT_DOCUMENT_EMAIL_SETTINGS: TDocumentEmailSettings = {
   ownerDocumentCompleted: true,
   ownerRecipientExpired: true,
   ownerDocumentCreated: true,
+  ownerReminderDigest: true,
 };

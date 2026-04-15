@@ -1,44 +1,46 @@
 ## Description
 
-<!--- Describe the changes introduced by this pull request. -->
-<!--- Explain what problem it solves or what feature/fix it adds. -->
+<!-- What does this PR do? One or two sentences. -->
 
 ## Related Issue
 
-<!--- If this pull request is related to a specific issue, reference it here using #issue_number. -->
-<!--- For example, "Fixes #123" or "Addresses #456". -->
+<!-- Reference the issue this PR addresses: "Fixes #123" or "Addresses #456" -->
 
 ## Changes Made
 
-<!--- Provide a summary of the changes made in this pull request. -->
-<!--- Include any relevant technical details or architecture changes. -->
+<!-- Bullet points of what changed. -->
 
-- Change 1
-- Change 2
-- ...
+- 
 
 ## Testing Performed
 
-<!--- Describe the testing that you have performed to validate these changes. -->
-<!--- Include information about test cases, testing environments, and results. -->
+<!-- How was this tested? -->
 
-- Tested feature X in scenario Y.
-- Ran unit tests for component Z.
-- Tested on browsers A, B, and C.
-- ...
+- [ ] Type checked locally (`npx tsc --noEmit`)
+- [ ] Built locally (`npm run build`)
+- [ ] Manually tested the affected flow end-to-end
+- [ ] Tested edge cases (empty states, error states, boundary values)
 
 ## Checklist
 
-<!--- Please check the boxes that apply to this pull request. -->
-<!--- You can add or remove items as needed. -->
+- [ ] Branch name follows `feat/doc-{id}-{description}` format
+- [ ] `npm run build` passes locally
+- [ ] All user-facing strings are wrapped in `<Trans>` or `msg` + `i18n._()`
+- [ ] Any job handler steps use `io.runTask` wrappers (if applicable)
+- [ ] Any Prisma migration is additive only — no destructive changes (if applicable)
+- [ ] No unreviewed AI-generated code (Documenso CONTRIBUTING.md requirement)
+- [ ] PR title follows semantic format: `feat:` / `fix:` / `chore:`
 
-- [ ] I have tested these changes locally and they work as expected.
-- [ ] I have added/updated tests that prove the effectiveness of these changes.
-- [ ] I have updated the documentation to reflect these changes, if applicable.
-- [ ] I have followed the project's coding style guidelines.
-- [ ] I have addressed the code review feedback from the previous submission, if applicable.
+## Security Checklist
+
+<!-- Required for PRs touching jobs, schema, server-only, or email packages -->
+
+- [ ] No secrets, tokens, or credentials in any committed file
+- [ ] User input is validated at the boundary (tRPC input schema or Zod)
+- [ ] No internal error details or stack traces exposed to the client
+- [ ] If adding a job handler: idempotency guard present (`io.runTask` on all side effects)
+- [ ] If modifying schema: migration is additive only, reviewed for unintended data loss
 
 ## Additional Notes
 
-<!--- Provide any additional context or notes for the reviewers. -->
-<!--- This might include details about design decisions, potential concerns, or anything else relevant. -->
+<!-- Anything reviewers should know: design decisions, known limitations, follow-up work. -->

@@ -18,7 +18,10 @@ import { EXPIRE_RECIPIENTS_SWEEP_JOB_DEFINITION } from './definitions/internal/e
 import { PROCESS_RECIPIENT_EXPIRED_JOB_DEFINITION } from './definitions/internal/process-recipient-expired';
 import { SEAL_DOCUMENT_JOB_DEFINITION } from './definitions/internal/seal-document';
 import { SEAL_DOCUMENT_SWEEP_JOB_DEFINITION } from './definitions/internal/seal-document-sweep';
+import { SEND_REMINDERS_SWEEP_JOB_DEFINITION } from './definitions/internal/send-reminders-sweep';
 import { SYNC_EMAIL_DOMAINS_JOB_DEFINITION } from './definitions/internal/sync-email-domains';
+import { SEND_OWNER_REMINDER_DIGEST_EMAIL_JOB_DEFINITION } from './definitions/emails/send-owner-reminder-digest-email';
+import { SEND_RECIPIENT_REMINDER_EMAIL_JOB_DEFINITION } from './definitions/emails/send-recipient-reminder-email';
 
 /**
  * The `as const` assertion is load bearing as it provides the correct level of type inference for
@@ -45,6 +48,9 @@ export const jobsClient = new JobClient([
   PROCESS_RECIPIENT_EXPIRED_JOB_DEFINITION,
   CLEANUP_RATE_LIMITS_JOB_DEFINITION,
   SYNC_EMAIL_DOMAINS_JOB_DEFINITION,
+  SEND_REMINDERS_SWEEP_JOB_DEFINITION,
+  SEND_RECIPIENT_REMINDER_EMAIL_JOB_DEFINITION,
+  SEND_OWNER_REMINDER_DIGEST_EMAIL_JOB_DEFINITION,
 ] as const);
 
 export const jobs = jobsClient;
