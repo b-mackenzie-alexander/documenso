@@ -7,13 +7,12 @@ import { jobs } from '../../client';
 import type { JobRunIO } from '../../client/_internal/job';
 import type { TSendRemindersSweepJobDefinition } from './send-reminders-sweep';
 
-// eslint-disable-next-line @typescript-eslint/require-await -- stub; remove when implemented
-export const run = async ({
+export const run = ({
   io,
 }: {
   payload: TSendRemindersSweepJobDefinition;
   io: JobRunIO;
-}) => {
+}): Promise<void> => {
   // TODO(Person 1): Implement sweep logic.
   //
   // Steps:
@@ -85,4 +84,6 @@ export const run = async ({
   void jobs;
 
   io.logger.info('send-reminders-sweep: not yet implemented');
+
+  return Promise.resolve();
 };

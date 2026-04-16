@@ -15,14 +15,13 @@ import { formatDocumentsPath } from '../../../utils/teams';
 import type { JobRunIO } from '../../client/_internal/job';
 import type { TSendOwnerReminderDigestEmailJobDefinition } from './send-owner-reminder-digest-email';
 
-// eslint-disable-next-line @typescript-eslint/require-await -- stub; remove when implemented
-export const run = async ({
+export const run = ({
   payload,
   io,
 }: {
   payload: TSendOwnerReminderDigestEmailJobDefinition;
   io: JobRunIO;
-}) => {
+}): Promise<void> => {
   const { teamId, envelopeIds } = payload;
 
   // TODO(Person 2): Implement sender digest dispatch.
@@ -70,4 +69,6 @@ export const run = async ({
   void formatDocumentsPath;
 
   io.logger.info(`send-owner-reminder-digest-email: not yet implemented (team ${teamId})`);
+
+  return Promise.resolve();
 };
