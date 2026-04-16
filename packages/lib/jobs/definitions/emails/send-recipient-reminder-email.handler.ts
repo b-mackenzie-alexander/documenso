@@ -16,13 +16,13 @@ import { renderEmailWithI18N } from '../../../utils/render-email-with-i18n';
 import type { JobRunIO } from '../../client/_internal/job';
 import type { TSendRecipientReminderEmailJobDefinition } from './send-recipient-reminder-email';
 
-export const run = ({
+export const run = async ({
   payload,
   io,
 }: {
   payload: TSendRecipientReminderEmailJobDefinition;
   io: JobRunIO;
-}): Promise<void> => {
+}) => { // eslint-disable-line @typescript-eslint/require-await -- stub; add awaits when implemented
   const { recipientId, envelopeId } = payload;
 
   // TODO(Person 2): Implement recipient reminder dispatch.
@@ -83,6 +83,4 @@ export const run = ({
   void renderEmailWithI18N;
 
   io.logger.info(`send-recipient-reminder-email: not yet implemented (recipient ${recipientId})`);
-
-  return Promise.resolve();
 };
