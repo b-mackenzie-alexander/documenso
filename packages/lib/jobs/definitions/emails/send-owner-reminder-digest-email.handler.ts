@@ -15,6 +15,7 @@ import { formatDocumentsPath } from '../../../utils/teams';
 import type { JobRunIO } from '../../client/_internal/job';
 import type { TSendOwnerReminderDigestEmailJobDefinition } from './send-owner-reminder-digest-email';
 
+// eslint-disable-next-line @typescript-eslint/require-await -- stub; remove when implemented
 export const run = async ({
   payload,
   io,

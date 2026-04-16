@@ -16,6 +16,7 @@ import { renderEmailWithI18N } from '../../../utils/render-email-with-i18n';
 import type { JobRunIO } from '../../client/_internal/job';
 import type { TSendRecipientReminderEmailJobDefinition } from './send-recipient-reminder-email';
 
+// eslint-disable-next-line @typescript-eslint/require-await -- stub; remove when implemented
 export const run = async ({
   payload,
   io,

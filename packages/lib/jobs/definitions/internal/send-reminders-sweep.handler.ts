@@ -7,6 +7,7 @@ import { jobs } from '../../client';
 import type { JobRunIO } from '../../client/_internal/job';
 import type { TSendRemindersSweepJobDefinition } from './send-reminders-sweep';
 
+// eslint-disable-next-line @typescript-eslint/require-await -- stub; remove when implemented
 export const run = async ({
   io,
 }: {
