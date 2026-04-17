@@ -101,6 +101,7 @@ export const extractDerivedDocumentEmailSettings = (
     ownerDocumentCompleted: emailSettings.ownerDocumentCompleted,
     ownerRecipientExpired: emailSettings.ownerRecipientExpired,
     ownerDocumentCreated: emailSettings.ownerDocumentCreated,
+    ownerReminderDigest: emailSettings.ownerReminderDigest,
   };
 };
 
