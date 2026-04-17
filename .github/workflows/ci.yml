@@ -76,7 +76,9 @@ jobs:
         run: |
           git fetch origin main --quiet
 
-          BASE_MIGRATIONS=$(git ls-tree --name-only origin/main packages/prisma/migrations/ 2>/dev/null | sort || echo "")
+          # Use <ref>:<path> syntax — `git ls-tree ref path/` returns full paths,
+          # but `git ls-tree ref:path/` returns bare names matching `ls` output.
+          BASE_MIGRATIONS=$(git ls-tree --name-only origin/main:packages/prisma/migrations/ 2>/dev/null | sort || echo "")
           HEAD_MIGRATIONS=$(ls -1 packages/prisma/migrations/ 2>/dev/null | sort || echo "")
 
           if [ -z "$HEAD_MIGRATIONS" ]; then
