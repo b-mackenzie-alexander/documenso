@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await -- stub; implementer must remove this and add real async/await */
 import { createElement } from 'react';
 
 import { msg } from '@lingui/core/macro';
@@ -9,8 +10,8 @@ import { prisma } from '@documenso/prisma';
 import { getI18nInstance } from '../../../client-only/providers/i18n-server';
 import { NEXT_PUBLIC_WEBAPP_URL } from '../../../constants/app';
 import { getEmailContext } from '../../../server-only/email/get-email-context';
-import { extractDerivedDocumentEmailSettings } from '../../../types/document-email';
 import { DOCUMENT_AUDIT_LOG_TYPE } from '../../../types/document-audit-logs';
+import { extractDerivedDocumentEmailSettings } from '../../../types/document-email';
 import { createDocumentAuditLogData } from '../../../utils/document-audit-logs';
 import { renderEmailWithI18N } from '../../../utils/render-email-with-i18n';
 import type { JobRunIO } from '../../client/_internal/job';
@@ -22,7 +23,7 @@ export const run = async ({
 }: {
   payload: TSendRecipientReminderEmailJobDefinition;
   io: JobRunIO;
-}) => { // eslint-disable-line @typescript-eslint/require-await -- stub; add awaits when implemented
+}) => {
   const { recipientId, envelopeId } = payload;
 
   // TODO(Person 2): Implement recipient reminder dispatch.
