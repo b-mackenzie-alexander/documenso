@@ -140,6 +140,11 @@ export const DocumentPageViewRecentActivity = ({
                         <MailOpen className="h-3 w-3" aria-hidden="true" />
                       </div>
                     ))
+                    .with(DOCUMENT_AUDIT_LOG_TYPE.REMINDER_SENT, () => (
+                      <div className="rounded-full border border-gray-300 bg-widget p-1 dark:border-neutral-600">
+                        <MailOpen className="h-3 w-3" aria-hidden="true" />
+                      </div>
+                    ))
                     .otherwise(() => (
                       <div className="h-1.5 w-1.5 rounded-full bg-widget ring-1 ring-gray-300 dark:ring-neutral-600" />
                     ))}
