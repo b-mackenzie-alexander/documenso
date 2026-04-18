@@ -6,8 +6,7 @@ const SEND_OWNER_REMINDER_DIGEST_EMAIL_JOB_DEFINITION_ID = 'send.owner.reminder.
 
 const SEND_OWNER_REMINDER_DIGEST_EMAIL_JOB_DEFINITION_SCHEMA = z.object({
   teamId: z.number(),
-  // Array of envelope summaries pre-computed by the sweep handler.
-  // Handler renders these directly without re-querying, keeping the digest job lightweight.
+  userId: z.number(),
   envelopeIds: z.array(z.string()),
 });
 

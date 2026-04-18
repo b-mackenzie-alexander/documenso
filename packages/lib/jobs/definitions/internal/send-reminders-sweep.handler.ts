@@ -39,7 +39,10 @@ export const run = async ({ io }: { payload: TSendRemindersSweepJobDefinition; i
   }
 
   const dueRecipients: Array<{ id: number; envelopeId: string }> = [];
-  const dueEnvelopesByTeam = new Map<number, Set<string>>();
+  const dueEnvelopesByOwner = new Map<
+    string,
+    { teamId: number; userId: number; envelopeIds: Set<string> }
+  >();
 
   for (const envelope of envelopes) {
     const intervalDays = envelope.documentMeta?.reminderIntervalDays;
@@ -59,9 +62,14 @@ export const run = async ({ io }: { payload: TSendRemindersSweepJobDefinition; i
       if (daysSinceLast >= intervalDays) {
         dueRecipients.push({ id: recipient.id, envelopeId: envelope.id });
 
-        const teamEnvelopes = dueEnvelopesByTeam.get(envelope.teamId) ?? new Set<string>();
-        teamEnvelopes.add(envelope.id);
-        dueEnvelopesByTeam.set(envelope.teamId, teamEnvelopes);
+        const ownerKey = `${envelope.teamId}:${envelope.userId}`;
+        const ownerBucket = dueEnvelopesByOwner.get(ownerKey) ?? {
+          teamId: envelope.teamId,
+          userId: envelope.userId,
+          envelopeIds: new Set<string>(),
+        };
+        ownerBucket.envelopeIds.add(envelope.id);
+        dueEnvelopesByOwner.set(ownerKey, ownerBucket);
       }
 
       // Cap matches the take: 1000 query limit — remainder picked up in next cron run.
@@ -98,10 +106,10 @@ export const run = async ({ io }: { payload: TSendRemindersSweepJobDefinition; i
   }
 
   const digestResults = await Promise.allSettled(
-    Array.from(dueEnvelopesByTeam.entries()).map(async ([teamId, envelopeIds]) => {
+    Array.from(dueEnvelopesByOwner.values()).map(async ({ teamId, userId, envelopeIds }) => {
       await jobs.triggerJob({
         name: 'send.owner.reminder.digest.email',
-        payload: { teamId, envelopeIds: Array.from(envelopeIds) },
+        payload: { teamId, userId, envelopeIds: Array.from(envelopeIds) },
       });
     }),
   );
