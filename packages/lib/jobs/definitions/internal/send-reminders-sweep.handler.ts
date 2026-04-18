@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await -- stub; implementer must remove this and add real async/await */
 import { DocumentStatus, SigningStatus } from '@prisma/client';
 import { DateTime } from 'luxon';
 
@@ -7,12 +8,7 @@ import { jobs } from '../../client';
 import type { JobRunIO } from '../../client/_internal/job';
 import type { TSendRemindersSweepJobDefinition } from './send-reminders-sweep';
 
-export const run = async ({
-  io,
-}: {
-  payload: TSendRemindersSweepJobDefinition;
-  io: JobRunIO;
-}) => {
+export const run = async ({ io }: { payload: TSendRemindersSweepJobDefinition; io: JobRunIO }) => {
   // TODO(Person 1): Implement sweep logic.
   //
   // Steps:

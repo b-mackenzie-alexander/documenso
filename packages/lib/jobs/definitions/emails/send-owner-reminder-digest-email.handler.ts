@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await -- stub; implementer must remove this and add real async/await */
 import { createElement } from 'react';
 
 import { msg } from '@lingui/core/macro';

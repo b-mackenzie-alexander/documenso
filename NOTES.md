@@ -91,6 +91,28 @@ Per [CONTRIBUTING.md](./CONTRIBUTING.md):
 
 ---
 
+## Security — Known Upstream Vulnerability Inventory
+
+> **As of 2026-04-16.** These are pre-existing vulnerabilities in `documenso/documenso`'s dependency tree.
+> They must **not** be patched in this fork (doing so pollutes the upstream PR diff).
+> Each should be reported as an issue on the upstream repo if not already tracked there.
+> Our CI omits `npm audit` for this reason; TruffleHog still runs for secrets.
+
+| Package | Severity | Advisory | Status |
+|---------|----------|----------|--------|
+| `axios ≤ 1.14.0` | **Critical** | GHSA (SSRF / credential leak) | Report upstream |
+| `follow-redirects ≤ 1.15.11` | Moderate | GHSA-cxjh-pqwp-8mfp (auth header leak on redirect) | Report upstream |
+| `lodash-es ≤ 4.17.23` | High | Prototype pollution, code injection via `_.template` | Report upstream |
+| `nodemailer ≤ 8.0.4` | Moderate | SMTP command injection via CRLF | Report upstream |
+| `path-to-regexp ≤ 0.1.12, 8.0.0–8.3.0` | High | ReDoS via wildcard routes | Report upstream |
+| `socket.io-parser 4.0.0–4.2.5` | High | Unbounded binary attachment count | Report upstream |
+| `tar ≤ 7.5.10` | High | Symlink path traversal | Report upstream |
+| `vite 7.0.0–7.3.1` | High | Path traversal, server.fs.deny bypass, arbitrary file read | Report upstream |
+
+Total as of scan: 33 vulnerabilities (1 critical, 24 high, 5 moderate, 3 low).
+
+---
+
 ## Notes on Documenso Upstream Considerations
 
 The `codeql-analysis.yml` and `semantic-pull-requests.yml` workflows in the upstream repo will run on our PRs. Semantic PR titles are enforced — use `feat:`, `fix:`, or `chore:` prefixes on PR titles.
