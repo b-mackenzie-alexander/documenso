@@ -131,6 +131,8 @@ export const ZDocumentMetaCreateSchema = z.object({
   emailReplyTo: zEmail().nullish(),
   emailSettings: ZDocumentEmailSettingsSchema.nullish(),
   envelopeExpirationPeriod: ZEnvelopeExpirationPeriod.nullish(),
+  reminderEnabled: z.boolean().optional(),
+  reminderIntervalDays: z.number().int().min(1).max(30).optional(),
 });
 
 export type TDocumentMetaCreate = z.infer<typeof ZDocumentMetaCreateSchema>;

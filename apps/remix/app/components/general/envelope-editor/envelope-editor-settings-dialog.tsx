@@ -102,6 +102,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@documenso/ui/primitives/select';
+import { Switch } from '@documenso/ui/primitives/switch';
 import { Textarea } from '@documenso/ui/primitives/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@documenso/ui/primitives/tooltip';
 import { useToast } from '@documenso/ui/primitives/use-toast';
@@ -145,6 +146,8 @@ export const ZAddSettingsFormSchema = z.object({
       message: msg`At least one signature type must be enabled`.id,
     }),
     envelopeExpirationPeriod: ZEnvelopeExpirationPeriod.nullish(),
+    reminderEnabled: z.boolean().default(false),
+    reminderIntervalDays: z.number().int().min(1).max(30).optional(),
   }),
 });
 
@@ -222,6 +225,8 @@ export const EnvelopeEditorSettingsDialog = ({
         emailSettings: ZDocumentEmailSettingsSchema.parse(envelope.documentMeta.emailSettings),
         signatureTypes: extractTeamSignatureSettings(envelope.documentMeta),
         envelopeExpirationPeriod: envelope.documentMeta?.envelopeExpirationPeriod ?? null,
+        reminderEnabled: envelope.documentMeta?.reminderEnabled ?? false,
+        reminderIntervalDays: envelope.documentMeta?.reminderIntervalDays ?? undefined,
       },
     };
   };
@@ -270,6 +275,8 @@ export const EnvelopeEditorSettingsDialog = ({
       subject,
       emailReplyTo,
       envelopeExpirationPeriod,
+      reminderEnabled,
+      reminderIntervalDays,
     } = data.meta;
 
     const parsedGlobalAccessAuth = z
@@ -300,6 +307,8 @@ export const EnvelopeEditorSettingsDialog = ({
           typedSignatureEnabled: signatureTypes.includes(DocumentSignatureType.TYPE),
           uploadSignatureEnabled: signatureTypes.includes(DocumentSignatureType.UPLOAD),
           envelopeExpirationPeriod,
+          reminderEnabled,
+          reminderIntervalDays,
         },
       });
 
@@ -741,6 +750,81 @@ export const EnvelopeEditorSettingsDialog = ({
                                   value={field.value}
                                   onChange={field.onChange}
                                   disabled={envelopeHasBeenSent}
+                                />
+                              </FormControl>
+
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                      <FormField
+                        control={form.control}
+                        name="meta.reminderEnabled"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex flex-row items-center">
+                              <Trans>Automatic Reminders</Trans>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <InfoIcon className="mx-2 h-4 w-4" />
+                                </TooltipTrigger>
+
+                                <TooltipContent className="max-w-xs text-muted-foreground">
+                                  {form.getValues('meta.envelopeExpirationPeriod') ? (
+                                    <Trans>
+                                      Automatically send reminder emails to unsigned recipients on a
+                                      recurring interval until the document expires.
+                                    </Trans>
+                                  ) : (
+                                    <Trans>
+                                      Set an expiration date to enable automatic reminders.
+                                    </Trans>
+                                  )}
+                                </TooltipContent>
+                              </Tooltip>
+                            </FormLabel>
+
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                disabled={
+                                  envelopeHasBeenSent ||
+                                  !form.getValues('meta.envelopeExpirationPeriod')
+                                }
+                              />
+                            </FormControl>
+
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {form.watch('meta.reminderEnabled') && (
+                        <FormField
+                          control={form.control}
+                          name="meta.reminderIntervalDays"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                <Trans>Reminder Interval (days)</Trans>
+                              </FormLabel>
+
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min={1}
+                                  max={30}
+                                  className="bg-background"
+                                  disabled={envelopeHasBeenSent}
+                                  value={field.value ?? ''}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value === '' ? undefined : Number(e.target.value),
+                                    )
+                                  }
                                 />
                               </FormControl>
 
