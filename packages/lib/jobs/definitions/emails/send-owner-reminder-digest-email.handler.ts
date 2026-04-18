@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 
-import { msg } from '@lingui/core/macro';
-import { SigningStatus } from '@prisma/client';
+import { msg, plural } from '@lingui/core/macro';
+import { DocumentStatus, SigningStatus } from '@prisma/client';
 
 import { mailer } from '@documenso/email/mailer';
 import { SenderReminderDigestEmailTemplate } from '@documenso/email/templates/sender-reminder-digest';
@@ -23,10 +23,10 @@ export const run = async ({
   payload: TSendOwnerReminderDigestEmailJobDefinition;
   io: JobRunIO;
 }) => {
-  const { teamId, envelopeIds } = payload;
+  const { teamId, userId, envelopeIds } = payload;
 
   const envelopes = await prisma.envelope.findMany({
-    where: { id: { in: envelopeIds } },
+    where: { id: { in: envelopeIds }, teamId, userId, status: DocumentStatus.PENDING },
     include: {
       user: {
         select: { id: true, email: true, name: true },
@@ -109,7 +109,7 @@ export const run = async ({
       },
       from: senderEmail,
       subject: i18n._(
-        msg`Reminder: ${count} document${count === 1 ? '' : 's'} awaiting signatures in "${teamName}"`,
+        msg`Reminder: ${plural(count, { one: '# document', other: '# documents' })} awaiting signatures in "${teamName}"`,
       ),
       html,
       text,
