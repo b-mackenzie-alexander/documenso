@@ -18,6 +18,12 @@ msgstr ""
 "X-Crowdin-File: web.po\n"
 "X-Crowdin-File-ID: 8\n"
 
+#. placeholder {0}: doc.daysRemaining
+#. placeholder {1}: doc.daysRemaining === 1 ? '' : 's'
+#: packages/email/template-components/template-sender-reminder-digest.tsx
+msgid " · {0} day{1} remaining"
+msgstr ""
+
 #: apps/remix/app/components/embed/authoring/configure-document-upload.tsx
 msgid ".PDF documents accepted (max {APP_DOCUMENT_UPLOAD_SIZE_LIMIT}MB)"
 msgstr ".PDF 문서만 허용됩니다(최대 {APP_DOCUMENT_UPLOAD_SIZE_LIMIT}MB)."
@@ -45,10 +51,6 @@ msgstr "“{documentName}” 문서가 서명되었습니다."
 msgid "“{documentName}” was signed by all signers"
 msgstr "“{documentName}” 문서가 모든 서명자에게서 서명을 완료했습니다."
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
-msgid "\"{documentTitle}\" has been successfully deleted"
-msgstr "\"{documentTitle}\"이(가) 성공적으로 삭제되었습니다."
-
 #: apps/remix/app/components/forms/document-preferences-form.tsx
 msgid "\"{placeholderEmail}\" on behalf of \"Team Name\" has invited you to sign \"example document\"."
 msgstr "\"{placeholderEmail}\"이(가) \"Team Name\"을(를) 대신하여 \"example document\"에 서명하도록 귀하를 초대했습니다."
@@ -56,6 +58,10 @@ msgstr "\"{placeholderEmail}\"이(가) \"Team Name\"을(를) 대신하여 \"exam
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "\"{title}\" has been successfully deleted"
 msgstr "\"{title}\"이(가) 성공적으로 삭제되었습니다."
+
+#: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
+msgid "\"{title}\" has been successfully hidden"
+msgstr ""
 
 #: apps/remix/app/components/forms/document-preferences-form.tsx
 msgid "\"Team Name\" has invited you to sign \"example document\"."
@@ -288,6 +294,11 @@ msgstr "이번 달 남은 문서 {1}개 중 {0}개."
 msgid "{0} on behalf of \"{1}\" has invited you to {recipientActionVerb} the document \"{2}\"."
 msgstr "{0}이(가) \"{1}\"을(를) 대신하여 \"{2}\" 문서에 대해 귀하께 {recipientActionVerb}하도록 초대했습니다."
 
+#. placeholder {0}: doc.pendingRecipientCount
+#: packages/email/template-components/template-sender-reminder-digest.tsx
+msgid "{0} recipients pending"
+msgstr ""
+
 #. placeholder {0}: organisation.name
 #: apps/remix/app/routes/_authenticated+/o.$orgUrl._index.tsx
 msgid "{0} Teams"
@@ -324,6 +335,10 @@ msgstr "{browserInfo} / {os}"
 #: apps/remix/app/components/general/document-signing/document-signing-text-field.tsx
 msgid "{charactersRemaining, plural, one {1 character remaining} other {{charactersRemaining} characters remaining}}"
 msgstr "{charactersRemaining, plural, other {{charactersRemaining}자 남음}}"
+
+#: packages/email/template-components/template-sender-reminder-digest.tsx
+msgid "{count} documents in {teamName} are awaiting signatures"
+msgstr ""
 
 #: packages/email/template-components/template-access-auth-2fa.tsx
 msgid "{expiresInMinutes, plural, one {This code will expire in # minute.} other {This code will expire in # minutes.}}"
@@ -434,6 +449,10 @@ msgstr "{remaningLength, plural, other {#자 남음}}"
 #: apps/remix/app/components/tables/envelopes-table-bulk-action-bar.tsx
 msgid "{selectedCount} selected"
 msgstr "{selectedCount}개 선택함"
+
+#: packages/email/template-components/template-document-reminder.tsx
+msgid "{senderName} is waiting for your signature."
+msgstr ""
 
 #: packages/email/template-components/template-document-rejected.tsx
 msgid "{signerName} has rejected the document \"{documentName}\"."
@@ -779,6 +798,10 @@ msgstr "<0>업로드</0> - 파일에서 업로드한 서명입니다."
 msgid "0 Free organisations left"
 msgstr "무료 조직 0개 남음"
 
+#: packages/email/template-components/template-sender-reminder-digest.tsx
+msgid "1 document in {teamName} is awaiting a signature"
+msgstr ""
+
 #: apps/remix/app/components/dialogs/organisation-create-dialog.tsx
 msgid "1 Free organisations left"
 msgstr "무료 조직 1개 남음"
@@ -786,6 +809,10 @@ msgstr "무료 조직 1개 남음"
 #: apps/remix/app/components/forms/token.tsx
 msgid "1 month"
 msgstr "1개월"
+
+#: packages/email/template-components/template-sender-reminder-digest.tsx
+msgid "1 recipient pending"
+msgstr ""
 
 #: apps/remix/app/components/forms/token.tsx
 msgid "12 months"
@@ -1488,7 +1515,6 @@ msgstr "모든 이메일 도메인이 성공적으로 동기화되었습니다."
 msgid "All Folders"
 msgstr "모든 폴더"
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "All inserted signatures will be voided"
 msgstr "삽입된 모든 서명이 무효화됩니다"
@@ -1501,7 +1527,6 @@ msgstr "모든 항목은 동일한 유형이어야 합니다."
 msgid "All recipients have signed. The document is being processed and you will receive an email copy shortly."
 msgstr "모든 수신자가 서명했습니다. 문서를 처리 중이며 곧 서명된 문서의 사본이 이메일로 전송됩니다."
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelopes-bulk-delete-dialog.tsx
 msgid "All recipients will be notified"
@@ -1689,10 +1714,6 @@ msgstr "직접 링크 서명을 비활성화하는 중 오류가 발생했습니
 #: apps/remix/app/components/dialogs/admin-user-disable-dialog.tsx
 msgid "An error occurred while disabling the user."
 msgstr "사용자를 비활성화하는 동안 오류가 발생했습니다."
-
-#: apps/remix/app/components/dialogs/template-duplicate-dialog.tsx
-msgid "An error occurred while duplicating template."
-msgstr "템플릿을 복제하는 중 오류가 발생했습니다."
 
 #: apps/remix/app/components/dialogs/template-direct-link-dialog.tsx
 msgid "An error occurred while enabling direct link signing."
@@ -1996,7 +2017,6 @@ msgstr "이 조직을 삭제하시겠습니까?"
 msgid "Are you sure you wish to delete this team?"
 msgstr "이 팀을 정말 삭제하시겠습니까?"
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-item-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/organisation-email-delete-dialog.tsx
@@ -2302,7 +2322,6 @@ msgstr "이 요청을 수락하면 {0}에 다음 권한을 부여하게 됩니�
 msgid "By accepting this request, you will be granting <0>{teamName}</0> access to:"
 msgstr "이 요청을 수락하면 <0>{teamName}</0> 팀에 다음 권한을 부여하게 됩니다."
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "By deleting this document, the following will occur:"
 msgstr "이 문서를 삭제하면 다음 작업이 수행됩니다:"
@@ -2344,8 +2363,6 @@ msgstr "누군가를 찾을 수 없나요?"
 #: apps/remix/app/components/dialogs/claim-create-dialog.tsx
 #: apps/remix/app/components/dialogs/claim-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/claim-update-dialog.tsx
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
-#: apps/remix/app/components/dialogs/document-duplicate-dialog.tsx
 #: apps/remix/app/components/dialogs/document-move-to-folder-dialog.tsx
 #: apps/remix/app/components/dialogs/document-resend-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
@@ -2401,9 +2418,7 @@ msgstr "누군가를 찾을 수 없나요?"
 #: apps/remix/app/components/dialogs/team-member-create-dialog.tsx
 #: apps/remix/app/components/dialogs/team-member-update-dialog.tsx
 #: apps/remix/app/components/dialogs/template-bulk-send-dialog.tsx
-#: apps/remix/app/components/dialogs/template-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/template-direct-link-dialog.tsx
-#: apps/remix/app/components/dialogs/template-duplicate-dialog.tsx
 #: apps/remix/app/components/dialogs/template-move-to-folder-dialog.tsx
 #: apps/remix/app/components/dialogs/token-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/webhook-create-dialog.tsx
@@ -3437,13 +3452,11 @@ msgstr "문서 소유권 위임"
 msgid "Delegate Document Ownership"
 msgstr "문서 소유권 위임"
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "delete"
 msgstr "delete"
 
 #: apps/remix/app/components/dialogs/claim-delete-dialog.tsx
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-item-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelopes-bulk-delete-dialog.tsx
@@ -3457,7 +3470,6 @@ msgstr "delete"
 #: apps/remix/app/components/dialogs/team-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/team-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/team-group-delete-dialog.tsx
-#: apps/remix/app/components/dialogs/template-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/token-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/webhook-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/webhook-delete-dialog.tsx
@@ -3813,14 +3825,6 @@ msgstr "DKIM 레코드가 생성되었습니다. 도메인을 인증하려면 DN
 msgid "DNS Records"
 msgstr "DNS 레코드"
 
-#: apps/remix/app/components/dialogs/template-delete-dialog.tsx
-msgid "Do you want to delete this template?"
-msgstr "이 템플릿을 삭제하시겠습니까?"
-
-#: apps/remix/app/components/dialogs/template-duplicate-dialog.tsx
-msgid "Do you want to duplicate this template?"
-msgstr "이 템플릿을 복제하시겠습니까?"
-
 #: apps/remix/app/components/general/admin-license-card.tsx
 msgid "Documenso License"
 msgstr "Documenso 라이선스"
@@ -3946,7 +3950,6 @@ msgid "Document Creation"
 msgstr "문서 생성"
 
 #: apps/remix/app/components/dialogs/admin-document-delete-dialog.tsx
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 #: apps/remix/app/components/general/admin-global-settings-section.tsx
 #: apps/remix/app/routes/_authenticated+/t.$teamUrl+/documents.$id._index.tsx
@@ -3977,7 +3980,7 @@ msgstr "문서 전송 방식"
 msgid "Document draft"
 msgstr "문서 초안"
 
-#: apps/remix/app/components/dialogs/document-duplicate-dialog.tsx
+#: apps/remix/app/components/dialogs/envelope-duplicate-dialog.tsx
 msgid "Document Duplicated"
 msgstr "문서가 복제되었습니다"
 
@@ -3993,6 +3996,10 @@ msgstr "문서 외부 ID가 업데이트되었습니다."
 #: apps/remix/app/components/general/document/document-certificate-qr-view.tsx
 msgid "Document found in your account"
 msgstr "귀하의 계정에서 문서를 찾았습니다."
+
+#: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
+msgid "Document hidden"
+msgstr ""
 
 #: apps/remix/app/routes/_authenticated+/admin+/documents.$id.tsx
 #: apps/remix/app/routes/_authenticated+/t.$teamUrl+/documents.$id.logs.tsx
@@ -4109,7 +4116,6 @@ msgctxt "Audit log format"
 msgid "Document signing auth updated"
 msgstr "문서 서명 인증이 업데이트되었습니다."
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "Document signing process will be cancelled"
 msgstr "문서 서명 프로세스가 취소됩니다"
@@ -4188,7 +4194,6 @@ msgstr "문서 공개 범위가 업데이트되었습니다."
 msgid "Document Volume"
 msgstr "문서량"
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "Document will be permanently deleted"
 msgstr "문서는 영구적으로 삭제됩니다"
@@ -4395,10 +4400,7 @@ msgstr "드롭다운 설정"
 msgid "Dropdown values"
 msgstr "드롭다운 값"
 
-#: apps/remix/app/components/dialogs/document-duplicate-dialog.tsx
-#: apps/remix/app/components/dialogs/document-duplicate-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-duplicate-dialog.tsx
-#: apps/remix/app/components/dialogs/template-duplicate-dialog.tsx
 #: apps/remix/app/components/general/document/document-page-view-dropdown.tsx
 #: apps/remix/app/components/general/envelope-editor/envelope-editor-fields-page-renderer.tsx
 #: apps/remix/app/components/tables/documents-table-action-dropdown.tsx
@@ -4906,10 +4908,6 @@ msgstr "Enterprise"
 msgid "Envelope distributed"
 msgstr "봉투가 배포되었습니다"
 
-#: apps/remix/app/components/dialogs/envelope-duplicate-dialog.tsx
-msgid "Envelope Duplicated"
-msgstr "봉투가 복제되었습니다"
-
 #: apps/remix/app/routes/_internal+/[__htmltopdf]+/audit-log.tsx
 #: packages/lib/server-only/pdf/render-audit-logs.ts
 msgid "Envelope ID"
@@ -4963,7 +4961,6 @@ msgstr "봉투가 업데이트되었습니다"
 #: apps/remix/app/components/dialogs/envelopes-bulk-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/session-logout-all-dialog.tsx
 #: apps/remix/app/components/dialogs/template-bulk-send-dialog.tsx
-#: apps/remix/app/components/dialogs/template-duplicate-dialog.tsx
 #: apps/remix/app/components/dialogs/template-move-to-folder-dialog.tsx
 #: apps/remix/app/components/dialogs/template-move-to-folder-dialog.tsx
 #: apps/remix/app/components/dialogs/template-use-dialog.tsx
@@ -5665,6 +5662,10 @@ msgstr "작동 방식은 다음과 같습니다:"
 msgid "Hey I’m Timur"
 msgstr "안녕하세요, 저는 Timur입니다"
 
+#: packages/email/template-components/template-sender-reminder-digest.tsx
+msgid "Hi {ownerName}, here's a summary of documents that still need attention."
+msgstr ""
+
 #: packages/email/templates/bulk-send-complete.tsx
 msgid "Hi {userName},"
 msgstr "안녕하세요 {userName}님,"
@@ -5677,7 +5678,6 @@ msgstr "{userName}님, 문서 \"{documentTitle}\"을(를) 완료하려면 인증
 msgid "Hi, {userName} <0>({userEmail})</0>"
 msgstr "안녕하세요, {userName}님 <0>({userEmail})</0>"
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 #: apps/remix/app/components/tables/documents-table-action-dropdown.tsx
 #: apps/remix/app/routes/_authenticated+/t.$teamUrl+/settings.public-profile.tsx
@@ -7088,7 +7088,6 @@ msgstr "이 페이지에서 API 토큰을 생성하고 관리할 수 있습니�
 msgid "On this page, you can create new Webhooks and manage the existing ones."
 msgstr "이 페이지에서 새 웹훅을 생성하고 기존 웹훅을 관리할 수 있습니다."
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelopes-bulk-delete-dialog.tsx
 msgid "Once confirmed, the following will occur:"
@@ -7380,6 +7379,10 @@ msgstr "소유자 문서 생성"
 msgid "Owner recipient expired"
 msgstr "소유자 수신자 만료"
 
+#: apps/remix/app/components/general/admin-global-settings-section.tsx
+msgid "Owner reminder digest"
+msgstr ""
+
 #: apps/remix/app/components/dialogs/admin-organisation-member-update-dialog.tsx
 msgid "Ownership transferred to {organisationMemberName}."
 msgstr "소유권이 {organisationMemberName}에게 이전되었습니다."
@@ -7654,7 +7657,6 @@ msgstr "이메일을 확인해 주세요."
 msgid "Please confirm your email address"
 msgstr "이메일 주소를 확인해 주세요."
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "Please contact support if you would like to revert this action."
 msgstr "이 작업을 되돌리려면 지원팀에 문의해 주세요."
@@ -7713,13 +7715,11 @@ msgstr "포털을 통해 로그인하는 사용자는 모두 조직의 구성원
 msgid "Please note that proceeding will remove direct linking recipient and turn it into a placeholder."
 msgstr "이 작업을 계속하면 직접 링크 수신자가 제거되고 플레이스홀더로 변경됩니다."
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelopes-bulk-delete-dialog.tsx
 msgid "Please note that this action is <0>irreversible</0>."
 msgstr "이 작업은 <0>되돌릴 수 없습니다</0>."
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "Please note that this action is <0>irreversible</0>. Once confirmed, this document will be permanently deleted."
 msgstr "이 작업은 <0>되돌릴 수 없습니다</0>. 확인되면 이 문서는 영구적으로 삭제됩니다."
@@ -7727,10 +7727,6 @@ msgstr "이 작업은 <0>되돌릴 수 없습니다</0>. 확인되면 이 문서
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "Please note that this action is <0>irreversible</0>. Once confirmed, this template will be permanently deleted."
 msgstr "이 작업은 <0>되돌릴 수 없습니다</0>. 한 번 확인하면 이 템플릿은 영구적으로 삭제됩니다."
-
-#: apps/remix/app/components/dialogs/template-delete-dialog.tsx
-msgid "Please note that this action is irreversible. Once confirmed, your template will be permanently deleted."
-msgstr "이 작업은 되돌릴 수 없습니다. 확인되면 템플릿이 영구적으로 삭제됩니다."
 
 #: apps/remix/app/components/dialogs/token-delete-dialog.tsx
 msgid "Please note that this action is irreversible. Once confirmed, your token will be permanently deleted."
@@ -7792,9 +7788,7 @@ msgstr "이메일 주소를 올바르게 입력했는지 확인한 후 다시 �
 msgid "Please try again or contact our support."
 msgstr "다시 시도하거나 고객 지원팀에 문의해 주세요."
 
-#. placeholder {0}: `'${_(deleteMessage)}'`
 #. placeholder {0}: `'${t(deleteMessage)}'`
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "Please type {0} to confirm"
 msgstr "확인하려면 {0}을(를) 입력하세요."
@@ -8184,7 +8178,6 @@ msgstr "새 문서에 자동으로 추가될 수신인들입니다."
 msgid "Recipients will be able to sign the document once sent"
 msgstr "수신자는 문서가 전송된 후 서명할 수 있습니다"
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "Recipients will still retain their copy of the document"
 msgstr "수신자는 여전히 문서 사본을 보관합니다"
@@ -8276,6 +8269,13 @@ msgstr "새로고침"
 msgid "Remembered your password? <0>Sign In</0>"
 msgstr "비밀번호가 기억나시나요? <0>로그인</0>"
 
+#. placeholder {0}: data.recipientName || data.recipientEmail
+#: packages/lib/utils/document-audit-logs.ts
+#: packages/lib/utils/document-audit-logs.ts
+#: packages/lib/utils/document-audit-logs.ts
+msgid "Reminder sent to {0}"
+msgstr ""
+
 #. placeholder {0}: envelope.documentMeta.subject
 #: packages/lib/server-only/document/resend-document.ts
 msgid "Reminder: {0}"
@@ -8286,6 +8286,14 @@ msgstr "알림: {0}"
 msgid "Reminder: {0} invited you to {recipientActionVerb} a document"
 msgstr "알림: {0}에서 문서에 {recipientActionVerb}하도록 초대했습니다."
 
+#: packages/email/templates/sender-reminder-digest.tsx
+msgid "Reminder: {count} documents in {teamName} are awaiting signatures"
+msgstr ""
+
+#: packages/email/templates/sender-reminder-digest.tsx
+msgid "Reminder: 1 document in {teamName} is awaiting a signature"
+msgstr ""
+
 #: packages/lib/server-only/document/resend-document.ts
 msgid "Reminder: Please {recipientActionVerb} this document"
 msgstr "알림: 이 문서를 {recipientActionVerb}해 주세요."
@@ -8293,6 +8301,24 @@ msgstr "알림: 이 문서를 {recipientActionVerb}해 주세요."
 #: packages/lib/server-only/document/resend-document.ts
 msgid "Reminder: Please {recipientActionVerb} your document"
 msgstr "알림: 귀하의 문서를 {recipientActionVerb}해 주세요."
+
+#. placeholder {0}: daysRemaining === 1 ? '' : 's'
+#: packages/email/templates/document-reminder.tsx
+msgid "Reminder: you have {daysRemaining} day{0} left to sign \"{documentName}\""
+msgstr ""
+
+#. placeholder {0}: daysRemaining === 1 ? '' : 's'
+#: packages/email/template-components/template-document-reminder.tsx
+msgid "Reminder: you have {daysRemaining} day{0} left to sign<0/>\"{documentName}\""
+msgstr ""
+
+#: packages/email/templates/document-reminder.tsx
+msgid "Reminder: your signature is still needed on \"{documentName}\""
+msgstr ""
+
+#: packages/email/template-components/template-document-reminder.tsx
+msgid "Reminder: your signature is still needed on<0/>\"{documentName}\""
+msgstr ""
 
 #: apps/remix/app/components/dialogs/team-email-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/team-member-delete-dialog.tsx
@@ -9156,6 +9182,7 @@ msgstr "문서 서명"
 #: apps/remix/app/components/general/document-signing/document-signing-mobile-widget.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-page-view-v1.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-page-view-v2.tsx
+#: packages/email/template-components/template-document-reminder.tsx
 msgid "Sign Document"
 msgstr "문서 서명"
 
@@ -9405,8 +9432,6 @@ msgstr "건너뛰기"
 msgid "Some signers have not been assigned a signature field. Please assign at least 1 signature field to each signer before proceeding."
 msgstr "일부 서명자에게 서명 필드가 할당되지 않았습니다. 진행하기 전에 각 서명자에게 최소 1개 이상의 서명 필드를 할당해 주세요."
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
-#: apps/remix/app/components/dialogs/document-duplicate-dialog.tsx
 #: apps/remix/app/components/dialogs/document-resend-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-distribute-dialog.tsx
@@ -9419,7 +9444,6 @@ msgstr "일부 서명자에게 서명 필드가 할당되지 않았습니다. �
 #: apps/remix/app/components/dialogs/team-email-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/team-inherit-member-disable-dialog.tsx
 #: apps/remix/app/components/dialogs/team-inherit-member-enable-dialog.tsx
-#: apps/remix/app/components/dialogs/template-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/template-direct-link-dialog.tsx
 #: apps/remix/app/components/dialogs/template-direct-link-dialog.tsx
 #: apps/remix/app/components/dialogs/template-direct-link-dialog.tsx
@@ -9991,7 +10015,7 @@ msgstr "템플릿(레거시)"
 msgid "Template Created"
 msgstr "템플릿이 생성되었습니다"
 
-#: apps/remix/app/components/dialogs/template-delete-dialog.tsx
+#: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "Template deleted"
 msgstr "템플릿이 삭제되었습니다"
 
@@ -9999,9 +10023,9 @@ msgstr "템플릿이 삭제되었습니다"
 msgid "Template document uploaded"
 msgstr "템플릿 문서가 업로드되었습니다"
 
-#: apps/remix/app/components/dialogs/template-duplicate-dialog.tsx
-msgid "Template duplicated"
-msgstr "템플릿이 복제되었습니다"
+#: apps/remix/app/components/dialogs/envelope-duplicate-dialog.tsx
+msgid "Template Duplicated"
+msgstr ""
 
 #: apps/remix/app/components/general/envelope-editor/envelope-editor.tsx
 msgid "Template Editor"
@@ -10014,6 +10038,10 @@ msgstr "템플릿이 공개 프로필에서 제거되었습니다."
 #: apps/remix/app/components/dialogs/public-profile-template-manage-dialog.tsx
 msgid "Template has been updated."
 msgstr "템플릿이 업데이트되었습니다."
+
+#: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
+msgid "Template hidden"
+msgstr ""
 
 #: apps/remix/app/components/general/template/template-page-view-information.tsx
 msgid "Template ID (Legacy)"
@@ -10224,7 +10252,6 @@ msgstr "문서 소유권이 {1}를 대신하여 {0}에게 위임되었습니다"
 msgid "The document was created but could not be sent to recipients."
 msgstr "문서는 생성되었지만 수신자에게 발송되지 않았습니다."
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "The document will be hidden from your account"
 msgstr "문서는 계정에서 숨겨집니다"
@@ -10597,7 +10624,6 @@ msgstr "이 문서는 복구할 수 없습니다. 향후 문서에 대한 삭제
 msgid "This document cannot be changed"
 msgstr "이 문서는 변경할 수 없습니다."
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "This document could not be deleted at this time. Please try again."
 msgstr "현재 이 문서를 삭제할 수 없습니다. 다시 시도해 주세요."
@@ -10606,7 +10632,6 @@ msgstr "현재 이 문서를 삭제할 수 없습니다. 다시 시도해 주세
 msgid "This document could not be downloaded at this time. Please try again."
 msgstr "현재 이 문서를 다운로드할 수 없습니다. 다시 시도해 주세요."
 
-#: apps/remix/app/components/dialogs/document-duplicate-dialog.tsx
 #: apps/remix/app/components/dialogs/envelope-duplicate-dialog.tsx
 msgid "This document could not be duplicated at this time. Please try again."
 msgstr "현재 이 문서를 복제할 수 없습니다. 다시 시도해 주세요."
@@ -10772,9 +10797,13 @@ msgstr "이 서명자는 이미 문서에 서명했습니다."
 msgid "This team, and any associated data excluding billing invoices will be permanently deleted."
 msgstr "이 팀과 관련된 데이터(청구서 제외)는 영구적으로 삭제됩니다."
 
-#: apps/remix/app/components/dialogs/template-delete-dialog.tsx
+#: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "This template could not be deleted at this time. Please try again."
 msgstr "현재 이 템플릿을 삭제할 수 없습니다. 다시 시도해 주세요."
+
+#: apps/remix/app/components/dialogs/envelope-duplicate-dialog.tsx
+msgid "This template could not be duplicated at this time. Please try again."
+msgstr ""
 
 #: apps/remix/app/components/general/legacy-field-warning-popover.tsx
 msgid "This template is using legacy field insertion, we recommend using the new field insertion method for more accurate results."
@@ -10878,6 +10907,10 @@ msgstr "제목은 비워 둘 수 없습니다."
 #: apps/remix/app/routes/_unauthenticated+/organisation.invite.$token.tsx
 msgid "To accept this invitation you must create an account."
 msgstr "이 초대를 수락하려면 계정을 생성해야 합니다."
+
+#: apps/remix/app/components/dialogs/team-member-create-dialog.tsx
+msgid "To add members to this team, they must first be invited to the organisation. Only organisation admins and managers can invite new members — please contact one of them to invite members on your behalf."
+msgstr ""
 
 #: apps/remix/app/components/dialogs/team-member-create-dialog.tsx
 msgid "To add members to this team, you must first add them to the organisation."
@@ -11819,6 +11852,7 @@ msgstr "문서 보기"
 #: packages/email/template-components/template-document-invite.tsx
 #: packages/email/template-components/template-document-rejected.tsx
 #: packages/email/template-components/template-recipient-expired.tsx
+#: packages/email/template-components/template-sender-reminder-digest.tsx
 #: packages/ui/primitives/document-flow/add-subject.tsx
 #: packages/ui/primitives/document-flow/add-subject.tsx
 #: packages/ui/primitives/document-flow/add-subject.tsx
@@ -12479,10 +12513,6 @@ msgstr "다음 문서에 대한 서명을 완료하려고 합니다"
 msgid "You are about to complete viewing the following document"
 msgstr "다음 문서에 대한 열람을 완료하려고 합니다"
 
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
-msgid "You are about to delete <0>\"{documentTitle}\"</0>"
-msgstr "<0>\"{documentTitle}\"</0>을(를) 삭제하려고 합니다"
-
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "You are about to delete <0>\"{title}\"</0>"
 msgstr "다음 항목을 삭제하려고 합니다: <0>\"{title}\"</0>"
@@ -12499,10 +12529,6 @@ msgstr "<0>{teamName}</0>에서 다음 팀 이메일을 삭제하려고 합니�
 #: apps/remix/app/components/dialogs/team-inherit-member-enable-dialog.tsx
 msgid "You are about to give all organisation members access to this team under their organisation role."
 msgstr "모든 조직 구성원에게 조직 역할에 따라 이 팀에 대한 액세스를 부여하려고 합니다."
-
-#: apps/remix/app/components/dialogs/document-delete-dialog.tsx
-msgid "You are about to hide <0>\"{documentTitle}\"</0>"
-msgstr "<0>\"{documentTitle}\"</0>을(를) 숨기려고 합니다"
 
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "You are about to hide <0>\"{title}\"</0>"
@@ -13327,7 +13353,7 @@ msgstr "문서가 템플릿으로 저장되었습니다."
 msgid "Your document has been sent successfully."
 msgstr "문서가 성공적으로 발송되었습니다."
 
-#: apps/remix/app/components/dialogs/document-duplicate-dialog.tsx
+#: apps/remix/app/components/dialogs/envelope-duplicate-dialog.tsx
 msgid "Your document has been successfully duplicated."
 msgstr "문서가 성공적으로 복제되었습니다."
 
@@ -13393,10 +13419,6 @@ msgstr "봉투가 성공적으로 배포되었습니다."
 #: apps/remix/app/components/dialogs/envelope-redistribute-dialog.tsx
 msgid "Your envelope has been resent successfully."
 msgstr "봉투가 성공적으로 다시 전송되었습니다."
-
-#: apps/remix/app/components/dialogs/envelope-duplicate-dialog.tsx
-msgid "Your envelope has been successfully duplicated."
-msgstr "봉투가 성공적으로 복제되었습니다."
 
 #: apps/remix/app/routes/_authenticated+/t.$teamUrl+/settings.tokens.tsx
 msgid "Your existing tokens"
@@ -13494,13 +13516,9 @@ msgstr "팀이 성공적으로 업데이트되었습니다."
 msgid "Your template has been created successfully"
 msgstr "템플릿이 성공적으로 생성되었습니다."
 
-#: apps/remix/app/components/dialogs/template-duplicate-dialog.tsx
-msgid "Your template has been duplicated successfully."
-msgstr "템플릿이 성공적으로 복제되었습니다."
-
-#: apps/remix/app/components/dialogs/template-delete-dialog.tsx
-msgid "Your template has been successfully deleted."
-msgstr "템플릿이 성공적으로 삭제되었습니다."
+#: apps/remix/app/components/dialogs/envelope-duplicate-dialog.tsx
+msgid "Your template has been successfully duplicated."
+msgstr ""
 
 #: apps/remix/app/components/dialogs/envelope-rename-dialog.tsx
 msgid "Your template has been successfully renamed."
@@ -13514,10 +13532,6 @@ msgstr "템플릿이 성공적으로 업데이트되었습니다."
 #: apps/remix/app/components/general/envelope/envelope-upload-button.tsx
 msgid "Your template has been uploaded successfully."
 msgstr "템플릿이 성공적으로 업로드되었습니다."
-
-#: apps/remix/app/components/dialogs/template-duplicate-dialog.tsx
-msgid "Your template will be duplicated."
-msgstr "템플릿이 복제됩니다."
 
 #: apps/remix/app/components/general/app-command-menu.tsx
 msgid "Your templates"
@@ -13554,4 +13568,3 @@ msgstr "인증 코드:"
 #: apps/remix/app/routes/_authenticated+/o.$orgUrl.settings.sso.tsx
 msgid "your-domain.com another-domain.com"
 msgstr "your-domain.com another-domain.com"
-
