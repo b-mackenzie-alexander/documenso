@@ -149,6 +149,14 @@ export const ZAddSettingsFormSchema = z.object({
     reminderEnabled: z.boolean().default(false),
     reminderIntervalDays: z.number().int().min(1).max(30).optional(),
   }),
+}).superRefine((data, ctx) => {
+  if (data.meta.reminderEnabled && !data.meta.reminderIntervalDays) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: msg`Reminder interval is required when reminders are enabled`.id,
+      path: ['meta', 'reminderIntervalDays'],
+    });
+  }
 });
 
 type EnvelopeEditorSettingsTabType = 'general' | 'email' | 'security';
@@ -244,6 +252,7 @@ export const EnvelopeEditorSettingsDialog = ({
     );
 
   const emailSettings = form.watch('meta.emailSettings');
+  const envelopeExpirationPeriod = form.watch('meta.envelopeExpirationPeriod');
 
   const { data: emailData, isLoading: isLoadingEmails } =
     trpc.enterprise.organisation.email.find.useQuery(
@@ -772,7 +781,7 @@ export const EnvelopeEditorSettingsDialog = ({
                                 </TooltipTrigger>
 
                                 <TooltipContent className="max-w-xs text-muted-foreground">
-                                  {form.getValues('meta.envelopeExpirationPeriod') ? (
+                                  {envelopeExpirationPeriod ? (
                                     <Trans>
                                       Automatically send reminder emails to unsigned recipients on a
                                       recurring interval until the document expires.
@@ -792,7 +801,7 @@ export const EnvelopeEditorSettingsDialog = ({
                                 onCheckedChange={field.onChange}
                                 disabled={
                                   envelopeHasBeenSent ||
-                                  !form.getValues('meta.envelopeExpirationPeriod')
+                                  !envelopeExpirationPeriod
                                 }
                               />
                             </FormControl>
