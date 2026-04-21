@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 
-import { msg, plural } from '@lingui/core/macro';
-import { DocumentStatus, SigningStatus } from '@prisma/client';
+import { msg } from '@lingui/core/macro';
+import { SigningStatus } from '@prisma/client';
 
 import { mailer } from '@documenso/email/mailer';
 import { SenderReminderDigestEmailTemplate } from '@documenso/email/templates/sender-reminder-digest';
@@ -10,7 +10,9 @@ import { prisma } from '@documenso/prisma';
 import { getI18nInstance } from '../../../client-only/providers/i18n-server';
 import { NEXT_PUBLIC_WEBAPP_URL } from '../../../constants/app';
 import { getEmailContext } from '../../../server-only/email/get-email-context';
+import { DOCUMENT_AUDIT_LOG_TYPE } from '../../../types/document-audit-logs';
 import { extractDerivedDocumentEmailSettings } from '../../../types/document-email';
+import { createDocumentAuditLogData } from '../../../utils/document-audit-logs';
 import { renderEmailWithI18N } from '../../../utils/render-email-with-i18n';
 import { formatDocumentsPath } from '../../../utils/teams';
 import type { JobRunIO } from '../../client/_internal/job';
@@ -23,10 +25,10 @@ export const run = async ({
   payload: TSendOwnerReminderDigestEmailJobDefinition;
   io: JobRunIO;
 }) => {
-  const { teamId, userId, envelopeIds } = payload;
+  const { teamId, envelopeIds } = payload;
 
   const envelopes = await prisma.envelope.findMany({
-    where: { id: { in: envelopeIds }, teamId, userId, status: DocumentStatus.PENDING },
+    where: { id: { in: envelopeIds } },
     include: {
       user: {
         select: { id: true, email: true, name: true },
@@ -109,7 +111,7 @@ export const run = async ({
       },
       from: senderEmail,
       subject: i18n._(
-        msg`Reminder: ${plural(count, { one: '# document', other: '# documents' })} awaiting signatures in "${teamName}"`,
+        msg`Reminder: ${count} document${count === 1 ? '' : 's'} awaiting signatures in "${teamName}"`,
       ),
       html,
       text,
@@ -119,6 +121,22 @@ export const run = async ({
   await io.runTask('create-reminder-logs', async () => {
     await prisma.documentReminderLog.createMany({
       data: envelopeIds.map((eid) => ({ envelopeId: eid })),
+    });
+  });
+
+  await io.runTask('create-audit-logs', async () => {
+    await prisma.documentAuditLog.createMany({
+      data: envelopeIds.map((eid) =>
+        createDocumentAuditLogData({
+          type: DOCUMENT_AUDIT_LOG_TYPE.REMINDER_SENT,
+          envelopeId: eid,
+          data: {
+            recipientId: null,
+            recipientEmail: '',
+            recipientName: '',
+          },
+        }),
+      ),
     });
   });
 };

@@ -606,11 +606,20 @@ export const formatDocumentAuditLogAction = (
         user: message,
       };
     })
-    .with({ type: DOCUMENT_AUDIT_LOG_TYPE.REMINDER_SENT }, ({ data }) => ({
-      anonymous: msg({ message: `Reminder sent`, context: `Audit log format` }),
-      you: msg`Reminder sent to ${data.recipientName || data.recipientEmail}`,
-      user: msg`Reminder sent to ${data.recipientName || data.recipientEmail}`,
-    }))
+    .with({ type: DOCUMENT_AUDIT_LOG_TYPE.REMINDER_SENT }, ({ data }) => {
+      if (data.recipientId === null) {
+        const message = msg({
+          message: `Reminder digest sent to owner`,
+          context: `Audit log format`,
+        });
+        return { anonymous: message, you: message, user: message };
+      }
+      return {
+        anonymous: msg({ message: `Reminder sent`, context: `Audit log format` }),
+        you: msg`Reminder sent to ${data.recipientName || data.recipientEmail}`,
+        user: msg`Reminder sent to ${data.recipientName || data.recipientEmail}`,
+      };
+    })
     .exhaustive();
 
   let selectedDescription = description.anonymous;

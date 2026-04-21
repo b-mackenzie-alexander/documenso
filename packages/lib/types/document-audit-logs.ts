@@ -745,7 +745,7 @@ export const ZDocumentAuditLogEventRecipientExpiredSchema = z.object({
 export const ZDocumentAuditLogEventReminderSentSchema = z.object({
   type: z.literal(DOCUMENT_AUDIT_LOG_TYPE.REMINDER_SENT),
   data: z.object({
-    recipientId: z.number(),
+    recipientId: z.number().nullable(),
     recipientEmail: z.string(),
     recipientName: z.string(),
   }),
