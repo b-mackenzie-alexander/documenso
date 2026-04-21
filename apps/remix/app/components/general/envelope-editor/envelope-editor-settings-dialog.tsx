@@ -828,11 +828,15 @@ export const EnvelopeEditorSettingsDialog = ({
                                   className="bg-background"
                                   disabled={envelopeHasBeenSent}
                                   value={field.value ?? ''}
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value === '' ? undefined : Number(e.target.value),
-                                    )
-                                  }
+                                  onChange={(e) => {
+                                    const raw = e.target.value;
+                                    if (raw === '') {
+                                      field.onChange(undefined);
+                                      return;
+                                    }
+                                    const parsed = parseInt(raw, 10);
+                                    field.onChange(isNaN(parsed) ? undefined : parsed);
+                                  }}
                                 />
                               </FormControl>
 

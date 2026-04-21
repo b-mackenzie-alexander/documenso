@@ -114,7 +114,7 @@ export const ZDocumentMetaUploadSignatureEnabledSchema = z
  * all corresponding areas where this is used (some places that use this needs to pass
  * it through to another function).
  */
-export const ZDocumentMetaCreateSchema = z.object({
+export const ZDocumentMetaFieldsSchema = z.object({
   subject: ZDocumentMetaSubjectSchema.optional(),
   message: ZDocumentMetaMessageSchema.optional(),
   timezone: ZDocumentMetaTimezoneSchema.optional(),
@@ -133,6 +133,24 @@ export const ZDocumentMetaCreateSchema = z.object({
   envelopeExpirationPeriod: ZEnvelopeExpirationPeriod.nullish(),
   reminderEnabled: z.boolean().optional(),
   reminderIntervalDays: z.number().int().min(1).max(30).optional(),
+});
+
+export const ZDocumentMetaCreateSchema = ZDocumentMetaFieldsSchema.superRefine((data, ctx) => {
+  if (data.reminderEnabled && !data.reminderIntervalDays) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: msg`Reminder interval is required when reminders are enabled`.id,
+      path: ['reminderIntervalDays'],
+    });
+  }
+
+  if (data.reminderEnabled && !data.envelopeExpirationPeriod) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: msg`An expiration period is required to enable reminders`.id,
+      path: ['reminderEnabled'],
+    });
+  }
 });
 
 export type TDocumentMetaCreate = z.infer<typeof ZDocumentMetaCreateSchema>;

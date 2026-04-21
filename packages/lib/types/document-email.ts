@@ -72,7 +72,7 @@ export const ZDocumentEmailSettingsSchema = z
       .describe(
         'Whether to send a digest email to the document owner when reminders are sent to unsigned recipients. Aggregates all pending documents for the team into a single email.',
       )
-      .default(true),
+      .default(false),
   })
   .strip()
   .catch(() => ({ ...DEFAULT_DOCUMENT_EMAIL_SETTINGS }));
@@ -115,5 +115,5 @@ export const DEFAULT_DOCUMENT_EMAIL_SETTINGS: TDocumentEmailSettings = {
   ownerDocumentCompleted: true,
   ownerRecipientExpired: true,
   ownerDocumentCreated: true,
-  ownerReminderDigest: true,
+  ownerReminderDigest: false,
 };

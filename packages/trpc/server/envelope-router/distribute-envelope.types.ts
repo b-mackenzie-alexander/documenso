@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ZDocumentMetaUpdateSchema } from '@documenso/lib/types/document-meta';
+import { ZDocumentMetaFieldsSchema } from '@documenso/lib/types/document-meta';
 
 import { ZSuccessResponseSchema } from '../schema';
 import type { TrpcRouteMeta } from '../trpc';
@@ -18,7 +18,7 @@ export const distributeEnvelopeMeta: TrpcRouteMeta = {
 
 export const ZDistributeEnvelopeRequestSchema = z.object({
   envelopeId: z.string().describe('The ID of the envelope to send.'),
-  meta: ZDocumentMetaUpdateSchema.pick({
+  meta: ZDocumentMetaFieldsSchema.pick({
     subject: true,
     message: true,
     timezone: true,
