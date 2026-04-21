@@ -7,15 +7,17 @@ See `docs/PRD.md` for full requirements and `docs/ARCHITECTURE.md` for system de
 
 ## Prerequisites — align before anyone writes code
 
-- [ ] All five members have read `docs/PRD.md` and `docs/ARCHITECTURE.md`
-- [ ] Schema fields agreed on (see PRD §6) — Person 1 owns this, others unblock against it
-- [ ] Props contract for both email templates agreed on (see PRD §7) — Person 3 unblocks Person 2
-- [ ] GitHub branch protection configured per `.github/GITHUB_SETUP.md`
-- [ ] Each member has a GitHub issue or task assigned with an ID for branch naming (`feat/doc-{id}-{description}`)
+- [x] All five members have read `docs/PRD.md` and `docs/ARCHITECTURE.md`
+- [x] Schema fields agreed on (see PRD §6) — Person 1 owns this, others unblock against it
+- [x] Props contract for both email templates agreed on (see PRD §7) — Person 3 unblocks Person 2
+- [x] GitHub branch protection configured per `.github/GITHUB_SETUP.md`
+- [x] Each member has a GitHub issue or task assigned with an ID for branch naming (`feat/doc-{id}-{description}`)
 
 ---
 
 ## Person 1 — Schema + Job Infrastructure
+
+**Status: MERGED** (PR #12 → `main`)
 
 **Files owned:**
 - `packages/prisma/schema.prisma`
@@ -26,26 +28,28 @@ See `docs/PRD.md` for full requirements and `docs/ARCHITECTURE.md` for system de
 
 **Checklist:**
 
-- [ ] Add `reminderEnabled Boolean @default(false)` and `reminderIntervalDays Int?` to `DocumentMeta` in `schema.prisma`
-- [ ] Add `DocumentReminderLog` model to `schema.prisma` (see PRD §6.2 for exact schema)
-- [ ] Add `Envelope` and `Recipient` back-relations for `DocumentReminderLog`
-- [ ] Generate and commit Prisma migration (`npx prisma migrate dev --name add-document-reminder-log`)
-- [ ] Verify migration is additive only — no `NOT NULL` on existing columns, no destructive changes
-- [ ] Add `ownerReminderDigest` boolean to `ZDocumentEmailSettingsSchema` and `DocumentEmailEvents` enum in `document-email.ts` (coordinate with Person 4 — one of you edits, the other rebases)
-- [ ] Write `send-reminders-sweep.ts` definition file — cron `*/15 * * * *`, empty payload, following `expire-recipients-sweep.ts` pattern exactly
-- [ ] Write `send-reminders-sweep.handler.ts`:
-  - [ ] Query pending envelopes with `reminderEnabled = true`
-  - [ ] For each, check `DocumentReminderLog` to determine if interval has elapsed since last send (or since `sentAt` if no log exists)
-  - [ ] Cap at 1,000 recipients per run (matching `expire-recipients-sweep.handler.ts`)
-  - [ ] Fan out `send.recipient.reminder.email` jobs via `Promise.allSettled`
-  - [ ] Group by `teamId` and fan out one `send.owner.reminder.digest.email` job per team
-  - [ ] Wrap each step in `io.runTask()` for idempotency
-- [ ] Register all three new job definitions in `packages/lib/jobs/client.ts`
-- [ ] Confirm `npm run build` passes
+- [x] Add `reminderEnabled Boolean @default(false)` and `reminderIntervalDays Int?` to `DocumentMeta` in `schema.prisma`
+- [x] Add `DocumentReminderLog` model to `schema.prisma` (see PRD §6.2 for exact schema)
+- [x] Add `Envelope` and `Recipient` back-relations for `DocumentReminderLog`
+- [x] Generate and commit Prisma migration (`npx prisma migrate dev --name add-document-reminder-log`)
+- [x] Verify migration is additive only — no `NOT NULL` on existing columns, no destructive changes
+- [x] Add `ownerReminderDigest` boolean to `ZDocumentEmailSettingsSchema` and `DocumentEmailEvents` enum in `document-email.ts` (coordinate with Person 4 — one of you edits, the other rebases)
+- [x] Write `send-reminders-sweep.ts` definition file — cron `*/15 * * * *`, empty payload, following `expire-recipients-sweep.ts` pattern exactly
+- [x] Write `send-reminders-sweep.handler.ts`:
+  - [x] Query pending envelopes with `reminderEnabled = true`
+  - [x] For each, check `DocumentReminderLog` to determine if interval has elapsed since last send (or since `sentAt` if no log exists)
+  - [x] Cap at 1,000 recipients per run (matching `expire-recipients-sweep.handler.ts`)
+  - [x] Fan out `send.recipient.reminder.email` jobs via `Promise.allSettled`
+  - [x] Group by `(teamId, userId)` and fan out one `send.owner.reminder.digest.email` job per document owner
+  - [x] Rejection logging for failed fan-out jobs
+- [x] Register all three new job definitions in `packages/lib/jobs/client.ts`
+- [x] Confirm `npm run build` passes
 
 ---
 
 ## Person 2 — Email Dispatch + Template Integration
+
+**Status: MERGED** (PR #14 → `main` — squash merged, E2E bypassed due to Warp runner queue issue)
 
 **Files owned:**
 - `packages/lib/jobs/definitions/emails/send-recipient-reminder-email.ts`
@@ -55,33 +59,36 @@ See `docs/PRD.md` for full requirements and `docs/ARCHITECTURE.md` for system de
 - `packages/lib/types/document-audit-logs.ts` (new type only)
 - `packages/lib/server-only/document/find-document-audit-logs.ts` (filter update)
 
-**Dependency:** Person 3 must finish `document-reminder` template before handler can be completed. `sender-reminder-digest` template also needed.
+**Dependency:** Person 3 must finish `document-reminder` template before handler can be completed. `sender-reminder-digest` template also needed. ✓ Unblocked.
 
 **Checklist:**
 
-- [ ] Add `'REMINDER_SENT'` to `ZDocumentAuditLogTypeSchema` in `document-audit-logs.ts`
-- [ ] Add `REMINDER_SENT` data schema to the union type in `document-audit-logs.ts` (follow `EMAIL_SENT` pattern at line 247)
-- [ ] Add `REMINDER_SENT` to the `filterForRecentActivity` OR clause in `find-document-audit-logs.ts` (line 62)
-- [ ] Write `send-recipient-reminder-email.ts` definition (follows `send-signing-email.ts` pattern)
-- [ ] Write `send-recipient-reminder-email.handler.ts`:
-  - [ ] Fetch envelope, recipient, and team via Prisma (follow `send-signing-email.handler.ts` structure)
-  - [ ] Check `extractDerivedDocumentEmailSettings` — no new settings needed, reminder is always on for recipient if `reminderEnabled = true`
-  - [ ] Use `getEmailContext`, `renderEmailWithI18N`, `mailer.sendMail` (identical pipeline to existing handlers)
-  - [ ] Insert `DocumentReminderLog` row for this recipient after send
-  - [ ] Write `DocumentAuditLog` entry with type `REMINDER_SENT`
-  - [ ] All steps wrapped in `io.runTask()`
-- [ ] Write `send-owner-reminder-digest-email.ts` definition
-- [ ] Write `send-owner-reminder-digest-email.handler.ts`:
-  - [ ] Fetch all pending envelopes for the team from payload
-  - [ ] Check `extractDerivedDocumentEmailSettings(documentMeta).ownerReminderDigest` — return early if false
-  - [ ] Build digest data array, render template, send mail
-  - [ ] Insert one `DocumentReminderLog` row per envelope (recipientId: null = digest entry)
-  - [ ] All steps wrapped in `io.runTask()`
-- [ ] Confirm `npm run build` passes
+- [x] Add `'REMINDER_SENT'` to `ZDocumentAuditLogTypeSchema` in `document-audit-logs.ts`
+- [x] Add `REMINDER_SENT` data schema to the union type in `document-audit-logs.ts`
+- [x] Add `REMINDER_SENT` to the `filterForRecentActivity` OR clause in `find-document-audit-logs.ts`
+- [x] Write `send-recipient-reminder-email.ts` definition
+- [x] Write `send-recipient-reminder-email.handler.ts`:
+  - [x] Fetch envelope, recipient, and team via Prisma
+  - [x] Return early if envelope no longer PENDING or recipient has already signed
+  - [x] Use `getEmailContext`, `renderEmailWithI18N`, `mailer.sendMail`
+  - [x] Insert `DocumentReminderLog` row for this recipient after send
+  - [x] Write `DocumentAuditLog` entry with type `REMINDER_SENT`
+  - [x] All write steps wrapped in `io.runTask()`
+- [x] Write `send-owner-reminder-digest-email.ts` definition (includes `userId` in payload schema)
+- [x] Write `send-owner-reminder-digest-email.handler.ts`:
+  - [x] Fetch envelopes filtered by `teamId`, `userId`, and `status: PENDING`
+  - [x] Check `extractDerivedDocumentEmailSettings(documentMeta).ownerReminderDigest` — return early if false
+  - [x] Build digest data array, render template, send mail
+  - [x] Insert one `DocumentReminderLog` row per envelope (recipientId: null = digest entry)
+  - [x] All write steps wrapped in `io.runTask()`
+  - [x] Subject uses Lingui `plural()` for correct i18n pluralization
+- [x] Confirm `npm run build` passes
 
 ---
 
 ## Person 3 — Email Templates
+
+**Status: COMPLETE** (committed to `main` via scaffold — `634e1e62`)
 
 **Files owned:**
 - `packages/email/template-components/template-document-reminder.tsx`
@@ -93,30 +100,34 @@ See `docs/PRD.md` for full requirements and `docs/ARCHITECTURE.md` for system de
 
 **Checklist:**
 
-- [ ] Study `template-document-invite.tsx` + `template-recipient-expired.tsx` for layout reference
-- [ ] Study `bulk-send-complete.tsx` for list rendering reference (digest)
-- [ ] Write `template-document-reminder.tsx` (inner content component):
-  - [ ] Props: `senderName`, `recipientName`, `documentName`, `signDocumentLink`, `daysRemaining`, `assetBaseUrl`
-  - [ ] Use `TemplateDocumentImage` with `className="mt-6"`
-  - [ ] Headline text: urgency copy using `daysRemaining` — centered, `text-primary`, `font-semibold`
-  - [ ] Body text: `text-slate-400`, centered
-  - [ ] CTA button: `bg-documenso-500 text-black` — "Sign Document" — links to `signDocumentLink`
-  - [ ] All strings wrapped in `<Trans>` from `@lingui/react/macro`
-- [ ] Write `document-reminder.tsx` (full email shell):
-  - [ ] Copy `recipient-expired.tsx` structure — same HTML wrapper, logo, branding guard, footer
-  - [ ] Default props for preview (name, document name, etc.)
-  - [ ] Preview text: "Reminder: you have N days to sign [document]"
-- [ ] Write `template-sender-reminder-digest.tsx` (inner content component):
-  - [ ] Props: `ownerName`, `teamName`, `pendingDocuments: Array<{ documentName, pendingRecipientCount, daysRemaining, documentLink }>`, `assetBaseUrl`
-  - [ ] Render list of pending documents — one row per document with name, recipient count, days remaining, and link
-  - [ ] All strings wrapped in `<Trans>`
-- [ ] Write `sender-reminder-digest.tsx` (full email shell)
-- [ ] Preview both templates locally with react-email dev server
-- [ ] Share previews with team before handing off to Person 2
+- [x] Study `template-document-invite.tsx` + `template-recipient-expired.tsx` for layout reference
+- [x] Study `bulk-send-complete.tsx` for list rendering reference (digest)
+- [x] Write `template-document-reminder.tsx` (inner content component):
+  - [x] Props: `senderName`, `recipientName`, `documentName`, `signDocumentLink`, `daysRemaining`, `assetBaseUrl`
+  - [x] Use `TemplateDocumentImage` with `className="mt-6"`
+  - [x] Headline text: urgency copy using `daysRemaining` — centered, `text-primary`, `font-semibold`
+  - [x] Body text: `text-slate-400`, centered
+  - [x] CTA button: `bg-documenso-500 text-black` — "Sign Document" — links to `signDocumentLink`
+  - [x] All strings wrapped in `<Trans>` from `@lingui/react/macro`
+- [x] Write `document-reminder.tsx` (full email shell):
+  - [x] Copy `recipient-expired.tsx` structure — same HTML wrapper, logo, branding guard, footer
+  - [x] Default props for preview (name, document name, etc.)
+  - [x] Preview text: "Reminder: you have N days to sign [document]"
+- [x] Write `template-sender-reminder-digest.tsx` (inner content component):
+  - [x] Props: `ownerName`, `teamName`, `pendingDocuments: Array<{ documentName, pendingRecipientCount, daysRemaining, documentLink }>`, `assetBaseUrl`
+  - [x] Render list of pending documents — one row per document with name, recipient count, days remaining, and link
+  - [x] All strings wrapped in `<Trans>`
+- [x] Write `sender-reminder-digest.tsx` (full email shell)
+- [x] Preview both templates locally with react-email dev server
+- [x] Share previews with team before handing off to Person 2
+
+**Note:** Stale `TODO(Person 3)` comment remains in `template-sender-reminder-digest.tsx` above the implemented list renderer — remove before final integration PR.
 
 ---
 
 ## Person 4 — Send Flow UI (Frontend)
+
+**Status: PR #11 open — rebased onto main, security fixes applied, E2E pending**
 
 **Files owned:**
 - `packages/ui/components/document/document-email-checkboxes.tsx` (new checkbox)
@@ -125,35 +136,37 @@ See `docs/PRD.md` for full requirements and `docs/ARCHITECTURE.md` for system de
 
 **Checklist:**
 
-- [ ] Add `OwnerReminderDigest = 'ownerReminderDigest'` to `DocumentEmailEvents` enum in `document-email.ts` (coordinate timing with Person 1 — one edits, one rebases)
-- [ ] Add `ownerReminderDigest` to `ZDocumentEmailSettingsSchema` with `z.boolean().default(true)` and description
-- [ ] Add `ownerReminderDigest` to `DEFAULT_DOCUMENT_EMAIL_SETTINGS` with value `true`
-- [ ] Add new checkbox to `document-email-checkboxes.tsx`:
-  - [ ] Copy the `ownerRecipientExpired` block (lines 333–370) as the structural template
-  - [ ] `id={DocumentEmailEvents.OwnerReminderDigest}`
-  - [ ] Label: "Send me a reminder digest when recipients haven't signed"
-  - [ ] Tooltip: explain that this aggregates all pending documents into one email per team
-- [ ] Add reminder fields to `ZAddSettingsFormSchema` in `envelope-editor-settings-dialog.tsx`:
-  - [ ] `reminderEnabled: z.boolean().default(false)` inside `meta`
-  - [ ] `reminderIntervalDays: z.number().int().min(1).max(30).optional()` inside `meta`
-- [ ] Wire form defaults from `envelope.documentMeta` (follow `envelopeExpirationPeriod` pattern at line 224)
-- [ ] Add reminder UI to the `general` tab, immediately after `ExpirationPeriodPicker` block:
-  - [ ] Toggle (`Switch` primitive) for `reminderEnabled`
-  - [ ] Interval selector (1–30 days) — only visible when toggle is on
-  - [ ] Both fields disabled when `envelopeHasBeenSent`
-  - [ ] If no expiration date set, disable toggle with tooltip: "Set an expiration date to enable reminders"
-- [ ] Include `reminderEnabled` and `reminderIntervalDays` in the tRPC mutation payload (follow how other `meta` fields are submitted)
-- [ ] Confirm UI matches existing design system — no custom styles, use existing shadcn/ui primitives only
-- [ ] Confirm `npm run build` passes
+- [x] Add `OwnerReminderDigest = 'ownerReminderDigest'` to `DocumentEmailEvents` enum in `document-email.ts`
+- [x] Add `ownerReminderDigest` to `ZDocumentEmailSettingsSchema` with `z.boolean().default(true)` and description
+- [x] Add `ownerReminderDigest` to `DEFAULT_DOCUMENT_EMAIL_SETTINGS` with value `true`
+- [x] Add new checkbox to `document-email-checkboxes.tsx`:
+  - [x] `id={DocumentEmailEvents.OwnerReminderDigest}`
+  - [x] Label: "Send me a reminder digest when recipients haven't signed"
+  - [x] Tooltip: explain that this aggregates all pending documents into one email per team
+- [x] Add reminder fields to `ZAddSettingsFormSchema` in `envelope-editor-settings-dialog.tsx`:
+  - [x] `reminderEnabled: z.boolean().default(false)` inside `meta`
+  - [x] `reminderIntervalDays: z.number().int().min(1).max(30).optional()` inside `meta`
+  - [x] Cross-field validation: interval required when reminders enabled (`.superRefine()`)
+- [x] Wire form defaults from `envelope.documentMeta`
+- [x] Add reminder UI to the `general` tab, immediately after `ExpirationPeriodPicker` block:
+  - [x] Toggle (`Switch` primitive) for `reminderEnabled`
+  - [x] Interval input (1–30 days) — only visible when toggle is on
+  - [x] Both fields disabled when `envelopeHasBeenSent`
+  - [x] Toggle disabled with tooltip when no expiration date set (reactive via `form.watch()`)
+- [x] Include `reminderEnabled` and `reminderIntervalDays` in the tRPC mutation payload
+- [x] Confirm UI matches existing design system — no custom styles, use existing shadcn/ui primitives only
+- [x] Confirm `npm run build` passes
 
 ---
 
 ## Person 5 — Activity Feed Display
 
+**Status: PR open — rebased onto main, digest audit log fixes applied, E2E pending**
+
 **Files owned:**
 - `apps/remix/app/components/general/document/document-page-view-recent-activity.tsx`
 
-**Dependency:** Person 2 must add `REMINDER_SENT` to `ZDocumentAuditLogTypeSchema` and `filterForRecentActivity` before this renders real data. Can build the render case against the mock type in the meantime.
+**Dependency:** ✓ Unblocked — PR #14 merged.
 
 **Checklist:**
 
@@ -173,8 +186,8 @@ See `docs/PRD.md` for full requirements and `docs/ARCHITECTURE.md` for system de
 
 ## Integration & Review
 
-- [ ] All five branches rebased to latest `main` before opening PRs
-- [ ] PRs opened in dependency order: Person 1 → Person 2 + Person 3 (parallel) → Person 4 + Person 5 (parallel)
+- [x] All branches rebased to latest `main` before opening PRs
+- [x] PRs opened in dependency order: Person 1 → Person 2 + Person 3 (parallel) → Person 4 + Person 5 (parallel)
 - [ ] Security reviewer (B. Mackenzie) approves all PRs touching `packages/prisma/`, `packages/lib/jobs/`, `packages/lib/types/`, `packages/email/`
 - [ ] Full end-to-end test: send document with reminders enabled → wait one interval → confirm recipient email fires → confirm sender digest fires → confirm both appear in activity feed
 - [ ] `npm run build` passes on the integration branch
