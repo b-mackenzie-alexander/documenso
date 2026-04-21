@@ -241,6 +241,7 @@ const EnvelopeCreatePage = ({ embedAuthoringOptions }: EnvelopeCreatePageProps) 
         drawSignatureEnabled: envelope.documentMeta.drawSignatureEnabled ?? undefined,
         dateFormat: (envelope.documentMeta.dateFormat as TDocumentMetaDateFormat) ?? undefined,
         language: envelope.documentMeta.language as SupportedLanguageCodes,
+        reminderIntervalDays: envelope.documentMeta.reminderIntervalDays ?? undefined,
       },
     };
 

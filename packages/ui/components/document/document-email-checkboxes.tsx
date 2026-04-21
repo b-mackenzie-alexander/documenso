@@ -368,6 +368,45 @@ export const DocumentEmailCheckboxes = ({
           </Tooltip>
         </label>
       </div>
+
+      <div className="flex flex-row items-center">
+        <Checkbox
+          id={DocumentEmailEvents.OwnerReminderDigest}
+          className="h-5 w-5"
+          checked={value.ownerReminderDigest}
+          onCheckedChange={(checked) =>
+            onChange({ ...value, [DocumentEmailEvents.OwnerReminderDigest]: Boolean(checked) })
+          }
+        />
+
+        <label
+          className="ml-2 flex flex-row items-center text-sm text-muted-foreground"
+          htmlFor={DocumentEmailEvents.OwnerReminderDigest}
+        >
+          <Trans>Send me a reminder digest when recipients haven't signed</Trans>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <InfoIcon className="mx-2 h-4 w-4" />
+            </TooltipTrigger>
+
+            <TooltipContent className="max-w-md space-y-2 p-4 text-foreground">
+              <h2>
+                <strong>
+                  <Trans>Reminder digest email</Trans>
+                </strong>
+              </h2>
+
+              <p>
+                <Trans>
+                  When reminders are sent to unsigned recipients, this aggregates all pending
+                  documents for your team into a single digest email sent to you.
+                </Trans>
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </label>
+      </div>
     </div>
   );
 };

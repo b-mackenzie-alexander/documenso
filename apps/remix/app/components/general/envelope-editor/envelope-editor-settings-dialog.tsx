@@ -102,51 +102,64 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@documenso/ui/primitives/select';
+import { Switch } from '@documenso/ui/primitives/switch';
 import { Textarea } from '@documenso/ui/primitives/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@documenso/ui/primitives/tooltip';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
 import { useCurrentTeam } from '~/providers/team';
 
-export const ZAddSettingsFormSchema = z.object({
-  templateType: z.nativeEnum(TemplateType).optional(),
-  externalId: z.string().optional(),
-  visibility: z.nativeEnum(DocumentVisibility).optional(),
-  globalAccessAuth: z
-    .array(z.union([ZDocumentAccessAuthTypesSchema, z.literal('-1')]))
-    .transform((val) => (val.length === 1 && val[0] === '-1' ? [] : val))
-    .optional()
-    .default([]),
-  globalActionAuth: z.array(ZDocumentActionAuthTypesSchema).optional().default([]),
-  meta: z.object({
-    subject: z.string(),
-    message: z.string(),
-    timezone: ZDocumentMetaTimezoneSchema.default(DEFAULT_DOCUMENT_TIME_ZONE),
-    dateFormat: ZDocumentMetaDateFormatSchema.default(DEFAULT_DOCUMENT_DATE_FORMAT),
-    distributionMethod: z
-      .nativeEnum(DocumentDistributionMethod)
+export const ZAddSettingsFormSchema = z
+  .object({
+    templateType: z.nativeEnum(TemplateType).optional(),
+    externalId: z.string().optional(),
+    visibility: z.nativeEnum(DocumentVisibility).optional(),
+    globalAccessAuth: z
+      .array(z.union([ZDocumentAccessAuthTypesSchema, z.literal('-1')]))
+      .transform((val) => (val.length === 1 && val[0] === '-1' ? [] : val))
       .optional()
-      .default(DocumentDistributionMethod.EMAIL),
-    redirectUrl: z
-      .string()
-      .optional()
-      .refine((value) => value === undefined || value === '' || isValidRedirectUrl(value), {
-        message:
-          'Please enter a valid URL, make sure you include http:// or https:// part of the url.',
+      .default([]),
+    globalActionAuth: z.array(ZDocumentActionAuthTypesSchema).optional().default([]),
+    meta: z.object({
+      subject: z.string(),
+      message: z.string(),
+      timezone: ZDocumentMetaTimezoneSchema.default(DEFAULT_DOCUMENT_TIME_ZONE),
+      dateFormat: ZDocumentMetaDateFormatSchema.default(DEFAULT_DOCUMENT_DATE_FORMAT),
+      distributionMethod: z
+        .nativeEnum(DocumentDistributionMethod)
+        .optional()
+        .default(DocumentDistributionMethod.EMAIL),
+      redirectUrl: z
+        .string()
+        .optional()
+        .refine((value) => value === undefined || value === '' || isValidRedirectUrl(value), {
+          message:
+            'Please enter a valid URL, make sure you include http:// or https:// part of the url.',
+        }),
+      language: z
+        .union([z.string(), z.enum(SUPPORTED_LANGUAGE_CODES)])
+        .optional()
+        .default('en'),
+      emailId: z.string().nullable(),
+      emailReplyTo: z.preprocess((val) => (val === '' ? undefined : val), zEmail().optional()),
+      emailSettings: ZDocumentEmailSettingsSchema,
+      signatureTypes: z.array(z.nativeEnum(DocumentSignatureType)).min(1, {
+        message: msg`At least one signature type must be enabled`.id,
       }),
-    language: z
-      .union([z.string(), z.enum(SUPPORTED_LANGUAGE_CODES)])
-      .optional()
-      .default('en'),
-    emailId: z.string().nullable(),
-    emailReplyTo: z.preprocess((val) => (val === '' ? undefined : val), zEmail().optional()),
-    emailSettings: ZDocumentEmailSettingsSchema,
-    signatureTypes: z.array(z.nativeEnum(DocumentSignatureType)).min(1, {
-      message: msg`At least one signature type must be enabled`.id,
+      envelopeExpirationPeriod: ZEnvelopeExpirationPeriod.nullish(),
+      reminderEnabled: z.boolean().default(false),
+      reminderIntervalDays: z.number().int().min(1).max(30).optional(),
     }),
-    envelopeExpirationPeriod: ZEnvelopeExpirationPeriod.nullish(),
-  }),
-});
+  })
+  .superRefine((data, ctx) => {
+    if (data.meta.reminderEnabled && !data.meta.reminderIntervalDays) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: msg`Reminder interval is required when reminders are enabled`.id,
+        path: ['meta', 'reminderIntervalDays'],
+      });
+    }
+  });
 
 type EnvelopeEditorSettingsTabType = 'general' | 'email' | 'security';
 
@@ -222,6 +235,8 @@ export const EnvelopeEditorSettingsDialog = ({
         emailSettings: ZDocumentEmailSettingsSchema.parse(envelope.documentMeta.emailSettings),
         signatureTypes: extractTeamSignatureSettings(envelope.documentMeta),
         envelopeExpirationPeriod: envelope.documentMeta?.envelopeExpirationPeriod ?? null,
+        reminderEnabled: envelope.documentMeta?.reminderEnabled ?? false,
+        reminderIntervalDays: envelope.documentMeta?.reminderIntervalDays ?? undefined,
       },
     };
   };
@@ -239,6 +254,7 @@ export const EnvelopeEditorSettingsDialog = ({
     );
 
   const emailSettings = form.watch('meta.emailSettings');
+  const envelopeExpirationPeriod = form.watch('meta.envelopeExpirationPeriod');
 
   const { data: emailData, isLoading: isLoadingEmails } =
     trpc.enterprise.organisation.email.find.useQuery(
@@ -270,6 +286,8 @@ export const EnvelopeEditorSettingsDialog = ({
       subject,
       emailReplyTo,
       envelopeExpirationPeriod,
+      reminderEnabled,
+      reminderIntervalDays,
     } = data.meta;
 
     const parsedGlobalAccessAuth = z
@@ -300,6 +318,8 @@ export const EnvelopeEditorSettingsDialog = ({
           typedSignatureEnabled: signatureTypes.includes(DocumentSignatureType.TYPE),
           uploadSignatureEnabled: signatureTypes.includes(DocumentSignatureType.UPLOAD),
           envelopeExpirationPeriod,
+          reminderEnabled,
+          reminderIntervalDays,
         },
       });
 
@@ -741,6 +761,82 @@ export const EnvelopeEditorSettingsDialog = ({
                                   value={field.value}
                                   onChange={field.onChange}
                                   disabled={envelopeHasBeenSent}
+                                />
+                              </FormControl>
+
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                      <FormField
+                        control={form.control}
+                        name="meta.reminderEnabled"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex flex-row items-center">
+                              <Trans>Automatic Reminders</Trans>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <InfoIcon className="mx-2 h-4 w-4" />
+                                </TooltipTrigger>
+
+                                <TooltipContent className="max-w-xs text-muted-foreground">
+                                  {envelopeExpirationPeriod ? (
+                                    <Trans>
+                                      Automatically send reminder emails to unsigned recipients on a
+                                      recurring interval until the document expires.
+                                    </Trans>
+                                  ) : (
+                                    <Trans>
+                                      Set an expiration date to enable automatic reminders.
+                                    </Trans>
+                                  )}
+                                </TooltipContent>
+                              </Tooltip>
+                            </FormLabel>
+
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                disabled={envelopeHasBeenSent || !envelopeExpirationPeriod}
+                              />
+                            </FormControl>
+
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {form.watch('meta.reminderEnabled') && (
+                        <FormField
+                          control={form.control}
+                          name="meta.reminderIntervalDays"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                <Trans>Reminder Interval (days)</Trans>
+                              </FormLabel>
+
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min={1}
+                                  max={30}
+                                  className="bg-background"
+                                  disabled={envelopeHasBeenSent}
+                                  value={field.value ?? ''}
+                                  onChange={(e) => {
+                                    const raw = e.target.value;
+                                    if (raw === '') {
+                                      field.onChange(undefined);
+                                      return;
+                                    }
+                                    const parsed = parseInt(raw, 10);
+                                    field.onChange(isNaN(parsed) ? undefined : parsed);
+                                  }}
                                 />
                               </FormControl>
 
