@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/require-await -- stub; implementer must remove this and add real async/await */
 import { createElement } from 'react';
 
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
+import { DocumentStatus, SigningStatus } from '@prisma/client';
 
 import { mailer } from '@documenso/email/mailer';
 import { SenderReminderDigestEmailTemplate } from '@documenso/email/templates/sender-reminder-digest';
@@ -23,51 +23,102 @@ export const run = async ({
   payload: TSendOwnerReminderDigestEmailJobDefinition;
   io: JobRunIO;
 }) => {
-  const { teamId, envelopeIds } = payload;
+  const { teamId, userId, envelopeIds } = payload;
 
-  // TODO(Person 2): Implement sender digest dispatch.
-  //
-  // Steps:
-  // 1. Fetch team with owner (user) and all envelopes from envelopeIds payload.
-  //    Include documentMeta and pending recipient count per envelope.
-  //
-  // 2. Check ownerReminderDigest setting on first envelope's documentMeta:
-  //      const isDigestEnabled = extractDerivedDocumentEmailSettings(documentMeta).ownerReminderDigest;
-  //      if (!isDigestEnabled) return;
-  //    Note: if the sender disabled digests, skip — don't send for any envelope in this team.
-  //
-  // 3. Build pendingDocuments array:
-  //      pendingDocuments = envelopes.map(e => ({
-  //        documentName: e.title,
-  //        pendingRecipientCount: e.recipients.filter(r => r.signingStatus === 'NOT_SIGNED').length,
-  //        daysRemaining: ..., // calculate from expiration period
-  //        documentLink: `${NEXT_PUBLIC_WEBAPP_URL()}${formatDocumentsPath(team.url)}/${e.id}`,
-  //      }));
-  //
-  // 4. getEmailContext + getI18nInstance + createElement(SenderReminderDigestEmailTemplate, {...})
-  //    + renderEmailWithI18N + mailer.sendMail to team owner.
-  //    Wrap in io.runTask('send-digest-email').
-  //
-  // 5. INSERT one DocumentReminderLog per envelope (recipientId = null = digest entry):
-  //    await io.runTask('create-reminder-logs', async () => {
-  //      await prisma.documentReminderLog.createMany({
-  //        data: envelopeIds.map((eid) => ({ envelopeId: eid })),
-  //      });
-  //    });
+  const envelopes = await prisma.envelope.findMany({
+    where: { id: { in: envelopeIds }, teamId, userId, status: DocumentStatus.PENDING },
+    include: {
+      user: {
+        select: { id: true, email: true, name: true },
+      },
+      documentMeta: true,
+      team: {
+        select: { name: true, url: true },
+      },
+      recipients: {
+        select: { signingStatus: true, expiresAt: true },
+      },
+    },
+  });
 
-  void teamId;
-  void envelopeIds;
-  void createElement;
-  void msg;
-  void mailer;
-  void SenderReminderDigestEmailTemplate;
-  void prisma;
-  void getI18nInstance;
-  void NEXT_PUBLIC_WEBAPP_URL;
-  void getEmailContext;
-  void extractDerivedDocumentEmailSettings;
-  void renderEmailWithI18N;
-  void formatDocumentsPath;
+  if (envelopes.length === 0) {
+    return;
+  }
 
-  io.logger.info(`send-owner-reminder-digest-email: not yet implemented (team ${teamId})`);
+  const firstEnvelope = envelopes[0];
+
+  const isDigestEnabled = extractDerivedDocumentEmailSettings(
+    firstEnvelope.documentMeta,
+  ).ownerReminderDigest;
+
+  if (!isDigestEnabled) {
+    return;
+  }
+
+  const { branding, emailLanguage, senderEmail } = await getEmailContext({
+    emailType: 'INTERNAL',
+    source: { type: 'team', teamId },
+    meta: firstEnvelope.documentMeta,
+  });
+
+  const i18n = await getI18nInstance(emailLanguage);
+
+  const pendingDocuments = envelopes.map((envelope) => {
+    const pendingRecipients = envelope.recipients.filter(
+      (r) => r.signingStatus === SigningStatus.NOT_SIGNED,
+    );
+
+    const earliestExpiry = pendingRecipients
+      .map((r) => r.expiresAt)
+      .filter((d): d is Date => d !== null)
+      .sort((a, b) => a.getTime() - b.getTime())[0];
+
+    const daysRemaining = earliestExpiry
+      ? Math.max(0, Math.ceil((earliestExpiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+      : null;
+
+    return {
+      documentName: envelope.title,
+      pendingRecipientCount: pendingRecipients.length,
+      daysRemaining,
+      documentLink: `${NEXT_PUBLIC_WEBAPP_URL()}${formatDocumentsPath(envelope.team.url)}/${envelope.id}`,
+    };
+  });
+
+  const owner = firstEnvelope.user;
+  const teamName = firstEnvelope.team.name;
+  const count = envelopes.length;
+
+  const template = createElement(SenderReminderDigestEmailTemplate, {
+    ownerName: owner.name || owner.email,
+    teamName,
+    pendingDocuments,
+    assetBaseUrl: NEXT_PUBLIC_WEBAPP_URL(),
+  });
+
+  await io.runTask('send-digest-email', async () => {
+    const [html, text] = await Promise.all([
+      renderEmailWithI18N(template, { lang: emailLanguage, branding }),
+      renderEmailWithI18N(template, { lang: emailLanguage, branding, plainText: true }),
+    ]);
+
+    await mailer.sendMail({
+      to: {
+        name: owner.name || '',
+        address: owner.email,
+      },
+      from: senderEmail,
+      subject: i18n._(
+        msg`Reminder: ${plural(count, { one: '# document', other: '# documents' })} awaiting signatures in "${teamName}"`,
+      ),
+      html,
+      text,
+    });
+  });
+
+  await io.runTask('create-reminder-logs', async () => {
+    await prisma.documentReminderLog.createMany({
+      data: envelopeIds.map((eid) => ({ envelopeId: eid })),
+    });
+  });
 };

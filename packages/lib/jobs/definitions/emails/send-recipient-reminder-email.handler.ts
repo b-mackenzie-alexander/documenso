@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/require-await -- stub; implementer must remove this and add real async/await */
 import { createElement } from 'react';
 
 import { msg } from '@lingui/core/macro';
+import { DocumentStatus, SigningStatus } from '@prisma/client';
 
 import { mailer } from '@documenso/email/mailer';
 import { DocumentReminderEmailTemplate } from '@documenso/email/templates/document-reminder';
@@ -11,7 +11,6 @@ import { getI18nInstance } from '../../../client-only/providers/i18n-server';
 import { NEXT_PUBLIC_WEBAPP_URL } from '../../../constants/app';
 import { getEmailContext } from '../../../server-only/email/get-email-context';
 import { DOCUMENT_AUDIT_LOG_TYPE } from '../../../types/document-audit-logs';
-import { extractDerivedDocumentEmailSettings } from '../../../types/document-email';
 import { createDocumentAuditLogData } from '../../../utils/document-audit-logs';
 import { renderEmailWithI18N } from '../../../utils/render-email-with-i18n';
 import type { JobRunIO } from '../../client/_internal/job';
@@ -26,62 +25,97 @@ export const run = async ({
 }) => {
   const { recipientId, envelopeId } = payload;
 
-  // TODO(Person 2): Implement recipient reminder dispatch.
-  //
-  // Steps:
-  // 1. Fetch envelope (with documentMeta + team) and recipient. Pattern:
-  //      send-owner-recipient-expired-email.handler.ts lines 27–62
-  //
-  // 2. Return early if envelope is no longer PENDING or recipient has signed.
-  //
-  // 3. Check email settings (reminderEnabled is sufficient — per-recipient reminders
-  //    always fire when the sweep decides they're due):
-  //      const settings = extractDerivedDocumentEmailSettings(documentMeta);
-  //      No specific toggle blocks recipient reminders — the sweep's enabled check is sufficient.
-  //
-  // 4. Calculate daysRemaining from envelope expiration date (documentMeta.envelopeExpirationPeriod
-  //    or envelope-level expiry). If no expiration is set, omit from email copy.
-  //
-  // 5. getEmailContext + getI18nInstance (same pattern as every email handler).
-  //
-  // 6. Build signing link:
-  //      const signDocumentLink = `${NEXT_PUBLIC_WEBAPP_URL()}/sign/${recipient.token}`;
-  //
-  // 7. createElement(DocumentReminderEmailTemplate, { ... }) + renderEmailWithI18N + mailer.sendMail
-  //    Wrap in io.runTask('send-reminder-email').
-  //
-  // 8. INSERT DocumentReminderLog row (recipientId = recipient.id):
-  //    await io.runTask('create-reminder-log', async () => {
-  //      await prisma.documentReminderLog.create({
-  //        data: { envelopeId, recipientId: recipient.id },
-  //      });
-  //    });
-  //
-  // 9. INSERT DocumentAuditLog (type: REMINDER_SENT):
-  //    await io.runTask('create-audit-log', async () => {
-  //      await prisma.documentAuditLog.create({
-  //        data: createDocumentAuditLogData({
-  //          type: DOCUMENT_AUDIT_LOG_TYPE.REMINDER_SENT,
-  //          envelopeId,
-  //          data: { recipientId, recipientEmail: recipient.email, recipientName: recipient.name },
-  //        }),
-  //      });
-  //    });
+  const envelope = await prisma.envelope.findFirst({
+    where: { id: envelopeId },
+    include: {
+      user: {
+        select: { id: true, email: true, name: true },
+      },
+      documentMeta: true,
+      team: {
+        select: { teamEmail: true, name: true, url: true },
+      },
+    },
+  });
 
-  void recipientId;
-  void envelopeId;
-  void createElement;
-  void msg;
-  void mailer;
-  void DocumentReminderEmailTemplate;
-  void prisma;
-  void getI18nInstance;
-  void NEXT_PUBLIC_WEBAPP_URL;
-  void getEmailContext;
-  void extractDerivedDocumentEmailSettings;
-  void DOCUMENT_AUDIT_LOG_TYPE;
-  void createDocumentAuditLogData;
-  void renderEmailWithI18N;
+  if (!envelope) {
+    throw new Error(`Envelope ${envelopeId} not found`);
+  }
 
-  io.logger.info(`send-recipient-reminder-email: not yet implemented (recipient ${recipientId})`);
+  if (envelope.status !== DocumentStatus.PENDING) {
+    return;
+  }
+
+  const recipient = await prisma.recipient.findFirst({
+    where: { id: recipientId, envelopeId },
+  });
+
+  if (!recipient) {
+    throw new Error(`Recipient ${recipientId} not found on envelope ${envelopeId}`);
+  }
+
+  if (recipient.signingStatus !== SigningStatus.NOT_SIGNED) {
+    return;
+  }
+
+  const { branding, emailLanguage, senderEmail } = await getEmailContext({
+    emailType: 'RECIPIENT',
+    source: { type: 'team', teamId: envelope.teamId },
+    meta: envelope.documentMeta,
+  });
+
+  const i18n = await getI18nInstance(emailLanguage);
+
+  const signDocumentLink = `${NEXT_PUBLIC_WEBAPP_URL()}/sign/${recipient.token}`;
+
+  const daysRemaining = recipient.expiresAt
+    ? Math.max(0, Math.ceil((recipient.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : null;
+
+  const template = createElement(DocumentReminderEmailTemplate, {
+    senderName: envelope.user.name || envelope.user.email,
+    recipientName: recipient.name || recipient.email,
+    documentName: envelope.title,
+    signDocumentLink,
+    daysRemaining,
+    assetBaseUrl: NEXT_PUBLIC_WEBAPP_URL(),
+  });
+
+  await io.runTask('send-reminder-email', async () => {
+    const [html, text] = await Promise.all([
+      renderEmailWithI18N(template, { lang: emailLanguage, branding }),
+      renderEmailWithI18N(template, { lang: emailLanguage, branding, plainText: true }),
+    ]);
+
+    await mailer.sendMail({
+      to: {
+        name: recipient.name || '',
+        address: recipient.email,
+      },
+      from: senderEmail,
+      subject: i18n._(msg`Reminder: please sign "${envelope.title}"`),
+      html,
+      text,
+    });
+  });
+
+  await io.runTask('create-reminder-log', async () => {
+    await prisma.documentReminderLog.create({
+      data: { envelopeId, recipientId: recipient.id },
+    });
+  });
+
+  await io.runTask('create-audit-log', async () => {
+    await prisma.documentAuditLog.create({
+      data: createDocumentAuditLogData({
+        type: DOCUMENT_AUDIT_LOG_TYPE.REMINDER_SENT,
+        envelopeId,
+        data: {
+          recipientId: recipient.id,
+          recipientEmail: recipient.email,
+          recipientName: recipient.name || '',
+        },
+      }),
+    });
+  });
 };
