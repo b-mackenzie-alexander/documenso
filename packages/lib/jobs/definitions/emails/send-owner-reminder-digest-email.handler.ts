@@ -10,7 +10,9 @@ import { prisma } from '@documenso/prisma';
 import { getI18nInstance } from '../../../client-only/providers/i18n-server';
 import { NEXT_PUBLIC_WEBAPP_URL } from '../../../constants/app';
 import { getEmailContext } from '../../../server-only/email/get-email-context';
+import { DOCUMENT_AUDIT_LOG_TYPE } from '../../../types/document-audit-logs';
 import { extractDerivedDocumentEmailSettings } from '../../../types/document-email';
+import { createDocumentAuditLogData } from '../../../utils/document-audit-logs';
 import { renderEmailWithI18N } from '../../../utils/render-email-with-i18n';
 import { formatDocumentsPath } from '../../../utils/teams';
 import type { JobRunIO } from '../../client/_internal/job';
@@ -119,6 +121,22 @@ export const run = async ({
   await io.runTask('create-reminder-logs', async () => {
     await prisma.documentReminderLog.createMany({
       data: envelopeIds.map((eid) => ({ envelopeId: eid })),
+    });
+  });
+
+  await io.runTask('create-audit-logs', async () => {
+    await prisma.documentAuditLog.createMany({
+      data: envelopeIds.map((eid) =>
+        createDocumentAuditLogData({
+          type: DOCUMENT_AUDIT_LOG_TYPE.REMINDER_SENT,
+          envelopeId: eid,
+          data: {
+            recipientId: null,
+            recipientEmail: '',
+            recipientName: '',
+          },
+        }),
+      ),
     });
   });
 };
