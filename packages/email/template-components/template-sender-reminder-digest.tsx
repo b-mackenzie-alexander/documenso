@@ -30,11 +30,13 @@ export const TemplateSenderReminderDigest = ({
       <TemplateDocumentImage className="mt-6" assetBaseUrl={assetBaseUrl} />
 
       <Section>
-        <Text className="text-primary mx-auto mb-0 max-w-[80%] text-center text-lg font-semibold">
+        <Text className="mx-auto mb-0 max-w-[80%] text-center text-lg font-semibold text-primary">
           {count === 1 ? (
             <Trans>1 document in {teamName} is awaiting a signature</Trans>
           ) : (
-            <Trans>{count} documents in {teamName} are awaiting signatures</Trans>
+            <Trans>
+              {count} documents in {teamName} are awaiting signatures
+            </Trans>
           )}
         </Text>
 
@@ -42,19 +44,9 @@ export const TemplateSenderReminderDigest = ({
           <Trans>Hi {ownerName}, here's a summary of documents that still need attention.</Trans>
         </Text>
 
-        {/* TODO(Person 3): Render a table/list of pending documents.
-            Each row should show:
-            - documentName
-            - pendingRecipientCount (e.g. "2 recipients pending")
-            - daysRemaining (e.g. "3 days left" or "No expiration set")
-            - a View Document button/link
-            Reference bulk-send-complete.tsx for a list rendering pattern in react-email. */}
-
         {pendingDocuments.map((doc, index) => (
           <Section key={index} className="my-4 border-b border-slate-100 pb-4">
-            <Text className="mb-0 font-semibold text-slate-700">
-              {doc.documentName}
-            </Text>
+            <Text className="mb-0 font-semibold text-slate-700">{doc.documentName}</Text>
 
             <Text className="my-0 text-sm text-slate-400">
               {doc.pendingRecipientCount === 1 ? (
@@ -63,7 +55,10 @@ export const TemplateSenderReminderDigest = ({
                 <Trans>{doc.pendingRecipientCount} recipients pending</Trans>
               )}
               {doc.daysRemaining !== null && doc.daysRemaining > 0 && (
-                <Trans> · {doc.daysRemaining} day{doc.daysRemaining === 1 ? '' : 's'} remaining</Trans>
+                <Trans>
+                  {' '}
+                  · {doc.daysRemaining} day{doc.daysRemaining === 1 ? '' : 's'} remaining
+                </Trans>
               )}
             </Text>
 
