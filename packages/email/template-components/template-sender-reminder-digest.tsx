@@ -42,14 +42,6 @@ export const TemplateSenderReminderDigest = ({
           <Trans>Hi {ownerName}, here's a summary of documents that still need attention.</Trans>
         </Text>
 
-        {/* TODO(Person 3): Render a table/list of pending documents.
-            Each row should show:
-            - documentName
-            - pendingRecipientCount (e.g. "2 recipients pending")
-            - daysRemaining (e.g. "3 days left" or "No expiration set")
-            - a View Document button/link
-            Reference bulk-send-complete.tsx for a list rendering pattern in react-email. */}
-
         {pendingDocuments.map((doc, index) => (
           <Section key={index} className="my-4 border-b border-slate-100 pb-4">
             <Text className="mb-0 font-semibold text-slate-700">
