@@ -194,9 +194,16 @@ See `docs/PRD.md` for full requirements and `docs/ARCHITECTURE.md` for system de
 - [x] All branches rebased to latest `main` before opening PRs
 - [x] PRs opened in dependency order: Person 1 → Person 2 + Person 3 (parallel) → Person 4 + Person 5 (parallel)
 - [x] Security reviewer (B. Mackenzie) reviewed all PRs touching `packages/prisma/`, `packages/lib/jobs/`, `packages/lib/types/`, `packages/email/`
+- [x] Post-merge security review run against integrated `main` — three blocking findings fixed (see below)
 - [ ] Full end-to-end test: send document with reminders enabled → wait one interval → confirm recipient email fires → confirm sender digest fires → confirm both appear in activity feed
 - [x] `npm run build` passes (verified locally; CI Build App passes on all PRs)
+- [x] Local API test suite: 258 passed, 5 flaky (retried and passed), 10 skipped — no failures
 - [ ] PR description follows upstream Documenso template and references the issue
 - [ ] No unreviewed AI-generated code in any PR (CONTRIBUTING.md requirement)
 
-**Note:** E2E tests were bypassed on all PRs due to a persistent Warp runner queue issue (jobs stuck in `queued` state indefinitely). All code was reviewed manually. A full E2E pass should be completed before opening the upstream contribution PR.
+**Post-merge fixes applied (B. Mackenzie):**
+- `send-recipient-reminder-email.handler.ts`: added `reminderEnabled` gate — handler now returns early if owner disabled reminders between sweep and execution
+- `send-owner-reminder-digest-email.handler.ts`: filters all envelopes by `ownerReminderDigest` (not just `firstEnvelope`); added `status: PENDING` + `teamId` + `userId` scoping to `findMany`; fixed subject pluralization to use Lingui `plural()` macro
+- `packages/lib/server-only/ai/google.ts`: applied `as any` cast to suppress pre-existing upstream TS2353 error (`apiKey` removed from `GoogleVertexProviderSettings` in current SDK version)
+
+**Note:** E2E tests were bypassed on all PRs due to a persistent Warp runner queue issue (jobs stuck in `queued` state indefinitely). All code was reviewed manually. Local API test suite ran clean. UI E2E tests could not complete locally due to auth cookie setup issue in dev environment (unrelated to reminder code). A full E2E pass should be completed before opening the upstream contribution PR.

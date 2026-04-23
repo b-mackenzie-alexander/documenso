@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 
-import { msg } from '@lingui/core/macro';
-import { SigningStatus } from '@prisma/client';
+import { msg, plural } from '@lingui/core/macro';
+import { DocumentStatus, SigningStatus } from '@prisma/client';
 
 import { mailer } from '@documenso/email/mailer';
 import { SenderReminderDigestEmailTemplate } from '@documenso/email/templates/sender-reminder-digest';
@@ -25,10 +25,10 @@ export const run = async ({
   payload: TSendOwnerReminderDigestEmailJobDefinition;
   io: JobRunIO;
 }) => {
-  const { teamId, envelopeIds } = payload;
+  const { teamId, userId, envelopeIds } = payload;
 
   const envelopes = await prisma.envelope.findMany({
-    where: { id: { in: envelopeIds } },
+    where: { id: { in: envelopeIds }, teamId, userId, status: DocumentStatus.PENDING },
     include: {
       user: {
         select: { id: true, email: true, name: true },
@@ -47,15 +47,15 @@ export const run = async ({
     return;
   }
 
-  const firstEnvelope = envelopes[0];
+  const eligibleEnvelopes = envelopes.filter(
+    (e) => extractDerivedDocumentEmailSettings(e.documentMeta).ownerReminderDigest,
+  );
 
-  const isDigestEnabled = extractDerivedDocumentEmailSettings(
-    firstEnvelope.documentMeta,
-  ).ownerReminderDigest;
-
-  if (!isDigestEnabled) {
+  if (eligibleEnvelopes.length === 0) {
     return;
   }
+
+  const firstEnvelope = eligibleEnvelopes[0];
 
   const { branding, emailLanguage, senderEmail } = await getEmailContext({
     emailType: 'INTERNAL',
@@ -65,7 +65,7 @@ export const run = async ({
 
   const i18n = await getI18nInstance(emailLanguage);
 
-  const pendingDocuments = envelopes.map((envelope) => {
+  const pendingDocuments = eligibleEnvelopes.map((envelope) => {
     const pendingRecipients = envelope.recipients.filter(
       (r) => r.signingStatus === SigningStatus.NOT_SIGNED,
     );
@@ -89,7 +89,7 @@ export const run = async ({
 
   const owner = firstEnvelope.user;
   const teamName = firstEnvelope.team.name;
-  const count = envelopes.length;
+  const count = eligibleEnvelopes.length;
 
   const template = createElement(SenderReminderDigestEmailTemplate, {
     ownerName: owner.name || owner.email,
@@ -111,22 +111,24 @@ export const run = async ({
       },
       from: senderEmail,
       subject: i18n._(
-        msg`Reminder: ${count} document${count === 1 ? '' : 's'} awaiting signatures in "${teamName}"`,
+        msg`Reminder: ${plural(count, { one: '# document', other: '# documents' })} awaiting signatures in "${teamName}"`,
       ),
       html,
       text,
     });
   });
 
+  const eligibleEnvelopeIds = eligibleEnvelopes.map((e) => e.id);
+
   await io.runTask('create-reminder-logs', async () => {
     await prisma.documentReminderLog.createMany({
-      data: envelopeIds.map((eid) => ({ envelopeId: eid })),
+      data: eligibleEnvelopeIds.map((eid) => ({ envelopeId: eid })),
     });
   });
 
   await io.runTask('create-audit-logs', async () => {
     await prisma.documentAuditLog.createMany({
-      data: envelopeIds.map((eid) =>
+      data: eligibleEnvelopeIds.map((eid) =>
         createDocumentAuditLogData({
           type: DOCUMENT_AUDIT_LOG_TYPE.REMINDER_SENT,
           envelopeId: eid,

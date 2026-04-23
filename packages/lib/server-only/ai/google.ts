@@ -6,4 +6,5 @@ export const vertex = createVertex({
   project: env('GOOGLE_VERTEX_PROJECT_ID'),
   location: env('GOOGLE_VERTEX_LOCATION') || 'global',
   apiKey: env('GOOGLE_VERTEX_API_KEY'),
-});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any);

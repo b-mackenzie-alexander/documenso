@@ -1831,6 +1831,10 @@ msgstr "Ocurrió un error al subir tu documento."
 msgid "An error occurred. Please try again later."
 msgstr "Ocurrió un error. Por favor intenta de nuevo más tarde."
 
+#: packages/lib/types/document-meta.ts
+msgid "An expiration period is required to enable reminders"
+msgstr ""
+
 #: apps/remix/app/routes/_unauthenticated+/organisation.sso.confirmation.$token.tsx
 msgid "An organisation wants to create an account for you. Please review the details below."
 msgstr "Una organización quiere crear una cuenta para ti. Por favor, revisa los detalles a continuación."
@@ -2155,6 +2159,14 @@ msgstr "Se requiere autenticación"
 #: apps/remix/app/components/general/document-signing/access-auth-2fa-form.tsx
 msgid "Authenticator app"
 msgstr "App autenticadora"
+
+#: apps/remix/app/components/general/envelope-editor/envelope-editor-settings-dialog.tsx
+msgid "Automatic Reminders"
+msgstr ""
+
+#: apps/remix/app/components/general/envelope-editor/envelope-editor-settings-dialog.tsx
+msgid "Automatically send reminder emails to unsigned recipients on a recurring interval until the document expires."
+msgstr ""
 
 #: apps/remix/app/components/general/document-signing/document-signing-auto-sign.tsx
 msgid "Automatically sign fields"
@@ -8269,8 +8281,30 @@ msgstr "Recargar"
 msgid "Remembered your password? <0>Sign In</0>"
 msgstr "¿Recordaste tu contraseña? <0>Iniciar sesión</0>"
 
-#. placeholder {0}: data.recipientName || data.recipientEmail
+#: packages/ui/components/document/document-email-checkboxes.tsx
+msgid "Reminder digest email"
+msgstr ""
+
 #: packages/lib/utils/document-audit-logs.ts
+msgctxt "Audit log format"
+msgid "Reminder digest sent to owner"
+msgstr ""
+
+#: apps/remix/app/components/general/envelope-editor/envelope-editor-settings-dialog.tsx
+msgid "Reminder Interval (days)"
+msgstr ""
+
+#: apps/remix/app/components/general/envelope-editor/envelope-editor-settings-dialog.tsx
+#: packages/lib/types/document-meta.ts
+msgid "Reminder interval is required when reminders are enabled"
+msgstr ""
+
+#: packages/lib/utils/document-audit-logs.ts
+msgctxt "Audit log format"
+msgid "Reminder sent"
+msgstr ""
+
+#. placeholder {0}: data.recipientName || data.recipientEmail
 #: packages/lib/utils/document-audit-logs.ts
 #: packages/lib/utils/document-audit-logs.ts
 msgid "Reminder sent to {0}"
@@ -8285,6 +8319,11 @@ msgstr "Recordatorio: {0}"
 #: packages/lib/server-only/document/resend-document.ts
 msgid "Reminder: {0} invited you to {recipientActionVerb} a document"
 msgstr "Recordatorio: {0} te invitó a {recipientActionVerb} un documento"
+
+#. placeholder {0}: count === 1 ? '' : 's'
+#: packages/lib/jobs/definitions/emails/send-owner-reminder-digest-email.handler.ts
+msgid "Reminder: {count} document{0} awaiting signatures in \"{teamName}\""
+msgstr ""
 
 #: packages/email/templates/sender-reminder-digest.tsx
 msgid "Reminder: {count} documents in {teamName} are awaiting signatures"
@@ -8301,6 +8340,11 @@ msgstr "Recordatorio: Por favor {recipientActionVerb} este documento"
 #: packages/lib/server-only/document/resend-document.ts
 msgid "Reminder: Please {recipientActionVerb} your document"
 msgstr "Recordatorio: Por favor {recipientActionVerb} tu documento"
+
+#. placeholder {0}: envelope.title
+#: packages/lib/jobs/definitions/emails/send-recipient-reminder-email.handler.ts
+msgid "Reminder: please sign \"{0}\""
+msgstr ""
 
 #. placeholder {0}: daysRemaining === 1 ? '' : 's'
 #: packages/email/templates/document-reminder.tsx
@@ -9019,6 +9063,10 @@ msgstr "Enviar documentos a los destinatarios inmediatamente"
 msgid "Send Envelope"
 msgstr "Enviar sobre (envelope)"
 
+#: packages/ui/components/document/document-email-checkboxes.tsx
+msgid "Send me a reminder digest when recipients haven't signed"
+msgstr ""
+
 #: apps/remix/app/components/forms/document-preferences-form.tsx
 msgid "Send on Behalf of Team"
 msgstr "Enviar en nombre del equipo"
@@ -9072,6 +9120,10 @@ msgstr "Las sesiones han sido revocadas"
 #: apps/remix/app/components/general/claim-account.tsx
 msgid "Set a password"
 msgstr "Establecer una contraseña"
+
+#: apps/remix/app/components/general/envelope-editor/envelope-editor-settings-dialog.tsx
+msgid "Set an expiration date to enable automatic reminders."
+msgstr ""
 
 #: apps/remix/app/components/embed/authoring/configure-document-view.tsx
 msgid "Set up your document properties and recipient information"
@@ -12424,6 +12476,10 @@ msgstr "Lo que puedes hacer con los equipos:"
 #: packages/ui/primitives/template-flow/add-template-placeholder-recipients.tsx
 msgid "When enabled, signers can choose who should sign next in the sequence instead of following the predefined order."
 msgstr "Cuando está habilitado, los firmantes pueden elegir quién debe firmar a continuación en la secuencia en lugar de seguir el orden predefinido."
+
+#: packages/ui/components/document/document-email-checkboxes.tsx
+msgid "When reminders are sent to unsigned recipients, this aggregates all pending documents for your team into a single digest email sent to you."
+msgstr ""
 
 #: apps/remix/app/components/dialogs/passkey-create-dialog.tsx
 msgid "When you click continue, you will be prompted to add the first available authenticator on your system."

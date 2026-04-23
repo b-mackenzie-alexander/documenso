@@ -46,6 +46,10 @@ export const run = async ({
     return;
   }
 
+  if (!envelope.documentMeta?.reminderEnabled) {
+    return;
+  }
+
   const recipient = await prisma.recipient.findFirst({
     where: { id: recipientId, envelopeId },
   });
