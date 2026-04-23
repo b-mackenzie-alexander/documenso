@@ -8320,9 +8320,8 @@ msgstr "Przypomnienie: {0}"
 msgid "Reminder: {0} invited you to {recipientActionVerb} a document"
 msgstr "Przypomnienie: Sprawdź i {recipientActionVerb} dokument utworzony przez zespół {0}"
 
-#. placeholder {0}: count === 1 ? '' : 's'
 #: packages/lib/jobs/definitions/emails/send-owner-reminder-digest-email.handler.ts
-msgid "Reminder: {count} document{0} awaiting signatures in \"{teamName}\""
+msgid "Reminder: {count, plural, one {# document} other {# documents}} awaiting signatures in \"{teamName}\""
 msgstr ""
 
 #: packages/email/templates/sender-reminder-digest.tsx
